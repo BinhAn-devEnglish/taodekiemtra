@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Sinh Đề Thi Đa Năng - Xanh Tuệ Đức</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2e7d32; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input[type="text"], input[type="number"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: monospace; }
+        textarea { resize: vertical; }
+        
+        .btn-main { width: 100%; padding: 15px; background: #2e7d32; color: white; border: none; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-main:hover { background: #1b5e20; }
+
+        /* Vùng chứa Prompt */
+        .prompt-box { background: #fff3e0; border: 2px dashed #f57c00; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
+        .prompt-box h3 { margin-top: 0; color: #e65100; font-size: 16px; margin-bottom: 10px; }
+        .prompt-textarea { background: #fff; border: 1px solid #ffcc80; color: #333; font-size: 13px; line-height: 1.5; padding: 10px; border-radius: 4px; height: 180px; }
+        .btn-copy { background: #f57c00; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; display: inline-block; transition: 0.2s; }
+        .btn-copy:hover { background: #e65100; }
+        .copy-success { color: #2e7d32; font-weight: bold; margin-left: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>HỆ THỐNG TẠO ĐỀ THI ĐA DẠNG XTD</h1>
+    <div class="subtitle">Hỗ trợ trắc nghiệm, điền từ, kéo thả, nối câu... qua AI</div>
+    
+    <div class="grid-2">
+        <div class="form-group">
+            <label>1. Tên bài kiểm tra (Đẩy lên máy chủ):</label>
+            <input type="text" id="testName" placeholder="VD: BÀI TEST TIẾNG ANH - KÉO THẢ">
+        </div>
+        <div class="form-group">
+            <label>2. Tên Lớp:</label>
+            <input type="text" id="className" placeholder="VD: 4A2">
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div class="form-group">
+            <label>3. Thời gian làm bài (Phút):</label>
+            <input type="number" id="timeLimit" value="15">
+        </div>
+        <div class="form-group">
+            <label>4. Danh sách học sinh (Mỗi dòng 1 tên):</label>
+            <textarea id="studentsList" rows="3" placeholder="Nguyễn Văn A&#10;Trần Thị B"></textarea>
+        </div>
+    </div>
+
+    <div class="prompt-box">
+        <h3>🤖 BƯỚC 5: Lấy mã HTML từ AI (Hỗ trợ mọi dạng bài tập)</h3>
+        <textarea id="promptText" class="prompt-textarea" readonly>Đóng vai trò là một chuyên gia Lập trình Web và Thiết kế bài giảng. Hãy viết 1 đoạn mã HTML kết hợp CSS và JS (chung trong 1 file) cho một bài tập tương tác.
+- Chủ đề giao diện: [VD: Vui nhộn / Không gian / Đơn giản].
+- Dạng bài tập: [VD: Điền từ vào chỗ trống / Kéo thả đáp án / Nối câu / Trắc nghiệm / Hỗn hợp].
+- Nội dung câu hỏi: [DÁN ĐỀ BÀI CỦA BẠN VÀO ĐÂY].
+
+YÊU CẦU BẮT BUỘC VỀ KỸ THUẬT ĐỂ TÍCH HỢP HỆ THỐNG:
+1. Giao diện phải có: <select id="id_input_lop"></select>, <select id="id_input_ten"></select> và <div id="timer-display"></div>.
+2. Phải có nút nộp bài: <button type="button" onclick="handleSubmit()">NỘP BÀI</button>.
+3. BẮT BUỘC cung cấp 2 hàm Javascript ở cấp độ global (window) để hệ thống tự gọi:
+   - function getUnanswered() { ... } // Trả về số lượng câu/chỗ trống mà học sinh chưa làm (kiểu Int).
+   - function getScore() { ... } // Tự tính toán dựa trên logic bài tập và trả về điểm số thang 10 (kiểu Float từ 0 đến 10).
+Lưu ý: Bạn tự viết logic kéo thả, chọn đáp án, kiểm tra đúng sai bên trong JS. Không cần viết logic đồng hồ đếm ngược hay gửi API vì hệ thống ngoài đã có. Chỉ cần xuất ra mã HTML/CSS/JS hoàn chỉnh nhất, không giải thích.</textarea>
+        <div>
+            <button class="btn-copy" onclick="copyPrompt()">📋 Copy Prompt Nhờ AI</button>
+            <span id="copyMsg" class="copy-success">✔ Đã copy thành công!</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>6. Dán mã HTML/CSS/JS do AI sinh ra vào đây:</label>
+        <textarea id="customHTML" rows="10" placeholder=""></textarea>
+    </div>
+
+    <button class="btn-main" onclick="generateFinalFile()">TẠO VÀ TẢI XUỐNG FILE ĐỀ THI</button>
+</div>
+
+<script>
+function copyPrompt() {
+    const promptText = document.getElementById("promptText");
+    promptText.select();
+    promptText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(promptText.value).then(() => {
+        const msg = document.getElementById("copyMsg");
+        msg.style.display = "inline";
+        setTimeout(() => { msg.style.display = "none"; }, 4000);
+    });
+}
+
+function generateFinalFile() {
+    const testName = document.getElementById('testName').value.trim();
+    const className = document.getElementById('className').value.trim();
+    const timeLimit = document.getElementById('timeLimit').value.trim();
+    const studentsList = document.getElementById('studentsList').value.trim();
+    const customHTML = document.getElementById('customHTML').value;
+
+    if(!testName || !className || !timeLimit || !studentsList || !customHTML) {
+        alert("Vui lòng điền đầy đủ thông tin!");
+        return;
+    }
+
+    const studentsArray = studentsList.split('\n').map(s => s.trim()).filter(s => s !== '');
+
+    const finalHTML = `<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${testName}</title>
+    <script src="https://cdn.jsdelivr.net/gh/BinhAn-devEnglish/diemtongXTD/core.js"><\/script>
+</head>
+<body>
+
+    ${customHTML}
+
+    <script>
+        const students = ${JSON.stringify(studentsArray)};
+        const className = "${className}";
+        const testName = "${testName}";
+        let timeLeft = ${timeLimit} * 60;
+        let timerInterval;
+        let isSubmitted = false;
+
+        window.onload = function() {
+            const lopSelect = document.getElementById('id_input_lop');
+            const tenSelect = document.getElementById('id_input_ten');
+            
+            if(lopSelect) lopSelect.innerHTML = '<option value="' + className + '">' + className + '</option>';
+            if(tenSelect) {
+                tenSelect.innerHTML = '<option value="">-- Chọn tên --</option>';
+                students.forEach(name => {
+                    tenSelect.innerHTML += '<option value="' + name + '">' + name + '</option>';
+                });
+            }
+
+            const timerDisplay = document.getElementById('timer-display');
+            if(timerDisplay) {
+                timerInterval = setInterval(function() {
+                    if(isSubmitted) return;
+                    let m = Math.floor(timeLeft / 60);
+                    let s = timeLeft % 60;
+                    timerDisplay.innerText = m + ':' + (s < 10 ? '0' : '') + s;
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        alert("Hết giờ! Tự động thu bài.");
+                        handleSubmit(true);
+                    }
+                    timeLeft--;
+                }, 1000);
+            }
+        };
+
+        function handleSubmit(isAutoSubmit = false) {
+            if(isSubmitted) return;
+            
+            let hoTen = "";
+            let lop = className;
+            if(document.getElementById('id_input_ten')) hoTen = document.getElementById('id_input_ten').value;
+            
+            if(!hoTen && !isAutoSubmit) { alert("Vui lòng chọn Họ tên trước khi nộp!"); return; }
+            if(!hoTen && isAutoSubmit) hoTen = "Chưa nhập tên (Hết giờ)";
+
+            let unanswered = 0;
+            if (typeof window.getUnanswered === "function") {
+                unanswered = window.getUnanswered();
+            }
+
+            if (!isAutoSubmit && unanswered > 0) {
+                let confirmSubmit = confirm('Bạn còn ' + unanswered + ' phần chưa làm. Có nộp không?');
+                if (!confirmSubmit) return;
+            }
+
+            let diemTong = 0;
+            if (typeof window.getScore === "function") {
+                diemTong = window.getScore();
+            } else {
+                alert("LỖI: Giao diện AI sinh ra thiếu hàm getScore(). Không thể tính điểm!");
+                return;
+            }
+
+            isSubmitted = true;
+            if(timerInterval) clearInterval(timerInterval);
+            
+            // --- CẬP NHẬT: HIỆU ỨNG NÚT ĐANG CHẤM ĐIỂM ---
+            const allButtons = document.querySelectorAll('button');
+            allButtons.forEach(btn => {
+                const onClickAttr = btn.getAttribute('onclick');
+                // Tìm nút có gọi hàm handleSubmit
+                if(onClickAttr && onClickAttr.includes('handleSubmit')) {
+                    btn.innerHTML = '⏳ ĐANG CHẤM ĐIỂM...';
+                    btn.style.opacity = '0.7';
+                    btn.style.cursor = 'wait';
+                    btn.disabled = true; // Vô hiệu hoá tránh bấm nhiều lần
+                }
+            });
+
+            // Delay 800ms để người dùng kịp đọc chữ "Đang chấm điểm" rồi mới gửi điểm
+            setTimeout(() => {
+                const diemHienThi = Math.round(diemTong * 10) / 10;
+                
+                try {
+                    EduTech.submitResult({
+                        tenBai: testName, hoTen: hoTen, lop: lop, diemTong: diemTong
+                    }, 
+                    function() { 
+                        alert("Nộp bài thành công! Điểm của bạn: " + diemHienThi + "/10");
+                        document.body.innerHTML = '<h2 style="text-align:center;color:#2e7d32;margin-top:50px;">Bạn đã hoàn thành bài kiểm tra! Điểm: ' + diemHienThi + '/10</h2>';
+                    }, 
+                    function() { 
+                        alert("Lỗi đường truyền! Điểm chưa được lưu."); 
+                        isSubmitted = false;
+                        // Phục hồi lại nút nếu lỗi để nộp lại
+                        allButtons.forEach(btn => {
+                            if(btn.disabled) {
+                                btn.innerHTML = 'NỘP LẠI';
+                                btn.style.opacity = '1';
+                                btn.style.cursor = 'pointer';
+                                btn.disabled = false;
+                            }
+                        });
+                    });
+                } catch(e) {
+                    alert("Không có mạng hoặc lỗi Core! Điểm tính được: " + diemHienThi + "/10");
+                    isSubmitted = false;
+                    console.error(e);
+                }
+            }, 800);
+        }
+    <\/script>
+</body>
+</html>`;
+
+    const blob = new Blob([finalHTML], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `DeThi_DaNang_${className}_${Date.now()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
