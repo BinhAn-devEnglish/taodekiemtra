@@ -22,7 +22,7 @@
         /* Vùng chứa Prompt */
         .prompt-box { background: #fff3e0; border: 2px dashed #f57c00; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
         .prompt-box h3 { margin-top: 0; color: #e65100; font-size: 16px; margin-bottom: 10px; }
-        .prompt-textarea { background: #fff; border: 1px solid #ffcc80; color: #333; font-size: 13px; line-height: 1.5; padding: 10px; border-radius: 4px; height: 180px; }
+        .prompt-textarea { background: #fff; border: 1px solid #ffcc80; color: #333; font-size: 13px; line-height: 1.5; padding: 10px; border-radius: 4px; height: 210px; }
         .btn-copy { background: #f57c00; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; display: inline-block; transition: 0.2s; }
         .btn-copy:hover { background: #e65100; }
         .copy-success { color: #2e7d32; font-weight: bold; margin-left: 10px; display: none; }
@@ -66,10 +66,11 @@
 YÊU CẦU BẮT BUỘC VỀ KỸ THUẬT ĐỂ TÍCH HỢP HỆ THỐNG:
 1. Giao diện phải có: <select id="id_input_lop"></select>, <select id="id_input_ten"></select> và <div id="timer-display"></div>.
 2. Phải có nút nộp bài: <button type="button" onclick="handleSubmit()">NỘP BÀI</button>.
-3. BẮT BUỘC cung cấp 2 hàm Javascript ở cấp độ global (window) để hệ thống tự gọi:
-   - function getUnanswered() { ... } // Trả về số lượng câu/chỗ trống mà học sinh chưa làm (kiểu Int).
-   - function getScore() { ... } // Tự tính toán dựa trên logic bài tập và trả về điểm số thang 10 (kiểu Float từ 0 đến 10).
-Lưu ý: Bạn tự viết logic kéo thả, chọn đáp án, kiểm tra đúng sai bên trong JS. Không cần viết logic đồng hồ đếm ngược hay gửi API vì hệ thống ngoài đã có. Chỉ cần xuất ra mã HTML/CSS/JS hoàn chỉnh nhất, không giải thích.</textarea>
+3. BẮT BUỘC cung cấp 3 hàm Javascript ở cấp độ global (window) để hệ thống tự gọi:
+   - function getUnanswered() { ... } // Trả về số lượng câu/chỗ trống chưa làm (kiểu Int).
+   - function getScore() { ... } // Tự tính toán logic và trả về điểm số thang 10 (kiểu Float 0 đến 10).
+   - function showAnswers() { ... } // Khóa làm bài, hiển thị đáp án đúng, tô màu đúng/sai và HIỂN THỊ GIẢI THÍCH CHI TIẾT (nếu có) dưới mỗi câu hỏi.
+Lưu ý: Bạn tự viết logic kéo thả, chọn đáp án, kiểm tra đúng sai bên trong JS. Không cần viết logic đồng hồ đếm ngược hay gửi API. Chỉ cần xuất ra mã HTML/CSS/JS hoàn chỉnh nhất, không giải thích.</textarea>
         <div>
             <button class="btn-copy" onclick="copyPrompt()">📋 Copy Prompt Nhờ AI</button>
             <span id="copyMsg" class="copy-success">✔ Đã copy thành công!</span>
@@ -159,6 +160,44 @@ function generateFinalFile() {
             }
         };
 
+        // Hàm hỗ trợ chèn banner điểm và hiện đáp án
+        function showResultAndAnswers(diemHienThi, isOffline = false) {
+            const oldBanner = document.getElementById('xtd-result-banner');
+            if (oldBanner) oldBanner.remove();
+
+            const banner = document.createElement('div');
+            banner.id = 'xtd-result-banner';
+            const bgColor = isOffline ? '#fff9c4' : '#e8f5e9';
+            const textColor = isOffline ? '#f57f17' : '#2e7d32';
+            const borderColor = isOffline ? '#fbc02d' : '#4caf50';
+            const title = isOffline ? '[OFFLINE] KẾT QUẢ BÀI LÀM' : 'BẠN ĐÃ HOÀN THÀNH BÀI KIỂM TRA!';
+            
+            banner.innerHTML = '<div style="text-align:center; background:' + bgColor + '; color:' + textColor + '; padding:20px; border-radius:8px; margin:20px 10px; border:2px solid ' + borderColor + '; font-size: 20px; font-weight: bold;">' + title + '<br><span style="font-size: 28px;">Điểm: ' + diemHienThi + '/10</span></div>';
+            document.body.insertBefore(banner, document.body.firstChild);
+
+            // Đổi trạng thái nút nộp bài thay vì xóa đi
+            const allButtons = document.querySelectorAll('button');
+            allButtons.forEach(btn => {
+                const onClickAttr = btn.getAttribute('onclick');
+                if(onClickAttr && onClickAttr.includes('handleSubmit')) {
+                    btn.innerHTML = isOffline ? 'ĐÃ NỘP BÀI (OFFLINE)' : 'ĐÃ NỘP BÀI';
+                    btn.style.opacity = '0.6';
+                    btn.style.cursor = 'not-allowed';
+                    btn.disabled = true;
+                }
+            });
+
+            // Gọi hàm hiện đáp án của AI
+            if (typeof window.showAnswers === "function") {
+                window.showAnswers();
+            } else {
+                console.warn("AI không cung cấp hàm showAnswers(). Không thể hiển thị giải thích.");
+            }
+
+            // Cuộn lên đầu trang để học sinh thấy điểm
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function handleSubmit(isAutoSubmit = false) {
             if(isSubmitted) return;
             
@@ -190,20 +229,17 @@ function generateFinalFile() {
             isSubmitted = true;
             if(timerInterval) clearInterval(timerInterval);
             
-            // --- CẬP NHẬT: HIỆU ỨNG NÚT ĐANG CHẤM ĐIỂM ---
             const allButtons = document.querySelectorAll('button');
             allButtons.forEach(btn => {
                 const onClickAttr = btn.getAttribute('onclick');
-                // Tìm nút có gọi hàm handleSubmit
                 if(onClickAttr && onClickAttr.includes('handleSubmit')) {
                     btn.innerHTML = '⏳ ĐANG CHẤM ĐIỂM...';
                     btn.style.opacity = '0.7';
                     btn.style.cursor = 'wait';
-                    btn.disabled = true; // Vô hiệu hoá tránh bấm nhiều lần
+                    btn.disabled = true; 
                 }
             });
 
-            // Delay 800ms để người dùng kịp đọc chữ "Đang chấm điểm" rồi mới gửi điểm
             setTimeout(() => {
                 const diemHienThi = Math.round(diemTong * 10) / 10;
                 
@@ -213,14 +249,14 @@ function generateFinalFile() {
                     }, 
                     function() { 
                         alert("Nộp bài thành công! Điểm của bạn: " + diemHienThi + "/10");
-                        document.body.innerHTML = '<h2 style="text-align:center;color:#2e7d32;margin-top:50px;">Bạn đã hoàn thành bài kiểm tra! Điểm: ' + diemHienThi + '/10</h2>';
+                        // Sửa logic thành hiển thị banner và show đáp án
+                        showResultAndAnswers(diemHienThi, false);
                     }, 
                     function() { 
                         alert("Lỗi đường truyền! Điểm chưa được lưu."); 
                         isSubmitted = false;
-                        // Phục hồi lại nút nếu lỗi để nộp lại
                         allButtons.forEach(btn => {
-                            if(btn.disabled) {
+                            if(btn.disabled && btn.getAttribute('onclick').includes('handleSubmit')) {
                                 btn.innerHTML = 'NỘP LẠI';
                                 btn.style.opacity = '1';
                                 btn.style.cursor = 'pointer';
@@ -229,8 +265,9 @@ function generateFinalFile() {
                         });
                     });
                 } catch(e) {
-                    alert("Không có mạng hoặc lỗi Core! Điểm tính được: " + diemHienThi + "/10");
-                    isSubmitted = false;
+                    alert("Không có mạng hoặc lỗi Core! Hệ thống sẽ hiển thị điểm offline: " + diemHienThi + "/10");
+                    isSubmitted = true; // Chấp nhận nộp offline để được xem giải thích
+                    showResultAndAnswers(diemHienThi, true);
                     console.error(e);
                 }
             }, 800);
