@@ -67,7 +67,7 @@
 - Nội dung câu hỏi: [DÁN ĐỀ BÀI CỦA BẠN VÀO ĐÂY].
 
 YÊU CẦU BẮT BUỘC VỀ KỸ THUẬT ĐỂ TÍCH HỢP HỆ THỐNG:
-1. Giao diện phải có: <select id="id_input_lop"></select>, <select id="id_input_ten"></select> và <div id="timer-display"></div>.
+1. Giao diện phải có đồng hồ: <div id="timer-display"></div> (LƯU Ý: Tuyệt đối KHÔNG tạo ô nhập Họ Tên hay Lớp vì hệ thống đã tự động xử lý).
 2. Phải có nút nộp bài: <button type="button" onclick="handleSubmit()">NỘP BÀI</button>.
 3. BẮT BUỘC cung cấp 3 hàm Javascript ở cấp độ global (window) để hệ thống tự gọi:
    - function getUnanswered() { ... } // Trả về số lượng câu/chỗ trống chưa làm (kiểu Int).
@@ -100,22 +100,48 @@ function copyPrompt() {
     });
 }
 
-// Hàm chuẩn hóa chuỗi CSV thành mảng 2 chiều, xử lý được dấu phẩy nằm trong ngoặc kép
-function parseCSV(text) {
-    let p = '', row = [''], ret = [row], i = 0, r = 0, s = !0, l;
-    for (l of text) {
-        if ('"' === l) {
-            if (s && l === p) row[i] += l;
-            s = !s;
-        } else if (',' === l && s) l = row[++i] = '';
-        else if ('\n' === l && s) {
-            if ('\r' === p) row[i] = row[i].slice(0, -1);
-            row = ret[++r] = [l = '']; i = 0;
-        } else row[i] += l;
-        p = l;
-    }
-    if (ret[ret.length - 1][0] === '') ret.pop();
-    return ret;
+// CÔNG NGHỆ JSONP: Vượt màng lọc bảo mật CORS
+function fetchSheetDataJSONP(sheetId) {
+    return new Promise((resolve, reject) => {
+        const callbackName = 'gvizCallback_' + Math.round(Math.random() * 100000);
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&callback=${callbackName}`;
+
+        window[callbackName] = function(data) {
+            delete window[callbackName];
+            document.getElementById(callbackName).remove();
+
+            if (data.status === 'error') {
+                reject(new Error(data.errors[0].message));
+                return;
+            }
+
+            try {
+                const table = data.table;
+                const headers = table.cols.map(col => col.label ? col.label.trim() : '');
+                const rows = table.rows.map(row => {
+                    return row.c.map(cell => {
+                        if (!cell) return '';
+                        if (cell.f) return String(cell.f).trim();
+                        if (cell.v !== null && cell.v !== undefined) return String(cell.v).trim();
+                        return '';
+                    });
+                });
+                resolve({ headers, rows });
+            } catch (e) {
+                reject(new Error("Cấu trúc file Sheet không hợp lệ."));
+            }
+        };
+
+        const script = document.createElement('script');
+        script.id = callbackName;
+        script.src = url;
+        script.onerror = () => {
+            delete window[callbackName];
+            document.getElementById(callbackName).remove();
+            reject(new Error("Không thể kết nối. Hãy kiểm tra lại link Sheet và quyền chia sẻ (Bất kỳ ai có liên kết)."));
+        };
+        document.body.appendChild(script);
+    });
 }
 
 async function generateFinalFile() {
@@ -131,28 +157,21 @@ async function generateFinalFile() {
         return;
     }
 
-    // Biến lưu trữ dữ liệu trích xuất từ Google Sheet
     let sheetData = { headers: [], rows: [] };
 
     try {
         const match = sheetLink.match(/\/d\/([a-zA-Z0-9-_]+)/);
         if (!match) throw new Error("Link Google Sheet không đúng định dạng. Hãy copy link trên thanh địa chỉ.");
         const sheetId = match[1];
-        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
 
         btn.innerText = "⏳ ĐANG LẤY DỮ LIỆU TỪ SHEET...";
         btn.disabled = true;
 
-        const response = await fetch(csvUrl);
-        if (!response.ok) throw new Error("Không thể truy cập dữ liệu. Bạn đã nhớ mở quyền chia sẻ file Sheet thành 'Bất kỳ ai có liên kết' chưa?");
-
-        const csvText = await response.text();
-        const parsedData = parseCSV(csvText);
+        sheetData = await fetchSheetDataJSONP(sheetId);
         
-        if (parsedData.length < 2) throw new Error("File Sheet trống hoặc không có dòng dữ liệu.");
-
-        sheetData.headers = parsedData[0].map(h => h.trim());
-        sheetData.rows = parsedData.slice(1).map(r => r.map(c => c.trim()));
+        if (sheetData.headers.length === 0 || sheetData.rows.length === 0) {
+            throw new Error("File Sheet trống hoặc không nhận diện được cột dữ liệu.");
+        }
 
     } catch (error) {
         alert("LỖI ĐỌC DỮ LIỆU: " + error.message);
@@ -164,7 +183,6 @@ async function generateFinalFile() {
     btn.innerText = "TẠO VÀ TẢI XUỐNG FILE ĐỀ THI";
     btn.disabled = false;
 
-    // Bơm dữ liệu JSON thẳng vào file cấu hình
     const finalHTML = `<!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -196,12 +214,19 @@ async function generateFinalFile() {
             hideAIInputs();
         };
 
+        // BẢO VỆ DOM: Xóa xổ hoàn toàn các ô do AI lỡ sinh ra
         function hideAIInputs() {
             const aiLop = document.getElementById('id_input_lop');
             const aiTen = document.getElementById('id_input_ten');
-            // Ẩn các ô nhập liệu thừa do AI tự sinh ra vì ta đã có Top Bar
-            if(aiLop) { aiLop.style.display = 'none'; if(aiLop.previousElementSibling && aiLop.previousElementSibling.tagName==='LABEL') aiLop.previousElementSibling.style.display = 'none'; }
-            if(aiTen) { aiTen.style.display = 'none'; if(aiTen.previousElementSibling && aiTen.previousElementSibling.tagName==='LABEL') aiTen.previousElementSibling.style.display = 'none'; }
+            
+            if(aiLop) { 
+                if(aiLop.previousElementSibling && aiLop.previousElementSibling.tagName==='LABEL') aiLop.previousElementSibling.remove();
+                aiLop.remove(); 
+            }
+            if(aiTen) { 
+                if(aiTen.previousElementSibling && aiTen.previousElementSibling.tagName==='LABEL') aiTen.previousElementSibling.remove();
+                aiTen.remove(); 
+            }
         }
 
         function initDynamicFilters() {
@@ -219,7 +244,7 @@ async function generateFinalFile() {
                     select.style.borderRadius = '4px';
                     select.style.border = '1px solid #ccc';
                     select.style.minWidth = '150px';
-                    select.innerHTML = '<option value="">-- Chọn ' + header + ' --</option>';
+                    select.innerHTML = '<option value="">-- Chọn ' + (header || 'Cột ' + (colIndex+1)) + ' --</option>';
 
                     let validRows = rows.filter(row => {
                         for(let i = 0; i < colIndex; i++) {
@@ -240,7 +265,6 @@ async function generateFinalFile() {
 
                     select.onchange = (e) => {
                         currentFilters[colIndex] = e.target.value;
-                        // Xóa kết quả chọn của các cột con ở phía sau
                         for(let i = colIndex + 1; i < headers.length; i++) {
                             currentFilters[i] = '';
                         }
@@ -252,33 +276,31 @@ async function generateFinalFile() {
                 });
             }
 
+            // BỘ NHỚ NGẦM MỚI: Không xung đột với AI
             function syncHiddenValues() {
-                // Tạo hoặc cập nhật ô input ẩn để hàm handleSubmit() có thể lấy được giá trị
-                let tenInput = document.getElementById('id_input_ten');
-                if(!tenInput) {
-                    tenInput = document.createElement('input');
-                    tenInput.type = 'hidden';
-                    tenInput.id = 'id_input_ten';
-                    document.body.appendChild(tenInput);
+                let realTen = document.getElementById('xtd_real_ten');
+                if(!realTen) {
+                    realTen = document.createElement('input');
+                    realTen.type = 'hidden';
+                    realTen.id = 'xtd_real_ten';
+                    document.body.appendChild(realTen);
                 }
                 
-                // Cột cuối cùng luôn được hiểu là Tên học sinh
                 const isFullNameSelected = currentFilters[headers.length - 1] !== '';
-                tenInput.value = isFullNameSelected ? currentFilters[headers.length - 1] : '';
+                realTen.value = isFullNameSelected ? currentFilters[headers.length - 1] : '';
 
-                let lopInput = document.getElementById('id_input_lop');
-                if(!lopInput) {
-                    lopInput = document.createElement('input');
-                    lopInput.type = 'hidden';
-                    lopInput.id = 'id_input_lop';
-                    document.body.appendChild(lopInput);
+                let realLop = document.getElementById('xtd_real_lop');
+                if(!realLop) {
+                    realLop = document.createElement('input');
+                    realLop.type = 'hidden';
+                    realLop.id = 'xtd_real_lop';
+                    document.body.appendChild(realLop);
                 }
                 
-                // Gom các cột lọc trước đó làm Tên Lớp/Phòng Ban
                 if (headers.length > 1) {
-                    lopInput.value = currentFilters.slice(0, -1).filter(v => v).join(' - ');
+                    realLop.value = currentFilters.slice(0, -1).filter(v => v).join(' - ');
                 } else {
-                    lopInput.value = lopMacDinh;
+                    realLop.value = lopMacDinh;
                 }
             }
 
@@ -317,9 +339,12 @@ async function generateFinalFile() {
             
             banner.innerHTML = '<div style="text-align:center; background:' + bgColor + '; color:' + textColor + '; padding:20px; border-radius:8px; margin:20px 10px; border:2px solid ' + borderColor + '; font-size: 20px; font-weight: bold;">' + title + '<br><span style="font-size: 28px;">Điểm: ' + diemHienThi + '/10</span></div>';
             
-            // Chèn dưới thanh Top Bar thay vì trên cùng
             const topBar = document.getElementById('xtd-top-bar');
-            topBar.parentNode.insertBefore(banner, topBar.nextSibling);
+            if(topBar) {
+                topBar.parentNode.insertBefore(banner, topBar.nextSibling);
+            } else {
+                document.body.insertBefore(banner, document.body.firstChild);
+            }
 
             const allButtons = document.querySelectorAll('button');
             allButtons.forEach(btn => {
@@ -341,13 +366,15 @@ async function generateFinalFile() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // HÀM NỘP BÀI CẬP NHẬT: Đọc dữ liệu từ bộ nhớ ngầm độc lập
         function handleSubmit(isAutoSubmit = false) {
             if(isSubmitted) return;
             
             let hoTen = "";
             let lop = lopMacDinh;
-            if(document.getElementById('id_input_ten')) hoTen = document.getElementById('id_input_ten').value;
-            if(document.getElementById('id_input_lop') && document.getElementById('id_input_lop').value !== "") lop = document.getElementById('id_input_lop').value;
+            
+            if(document.getElementById('xtd_real_ten')) hoTen = document.getElementById('xtd_real_ten').value;
+            if(document.getElementById('xtd_real_lop') && document.getElementById('xtd_real_lop').value !== "") lop = document.getElementById('xtd_real_lop').value;
             
             if(!hoTen && !isAutoSubmit) { alert("Vui lòng chọn đầy đủ thông tin Họ tên ở thanh công cụ phía trên trước khi nộp!"); return; }
             if(!hoTen && isAutoSubmit) hoTen = "Chưa chọn tên (Hết giờ)";
