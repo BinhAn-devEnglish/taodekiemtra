@@ -104,7 +104,7 @@ function copyPrompt() {
 function fetchSheetDataJSONP(sheetId) {
     return new Promise((resolve, reject) => {
         const callbackName = 'gvizCallback_' + Math.round(Math.random() * 100000);
-        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&callback=${callbackName}`;
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json;responseHandler:${callbackName}`;
 
         window[callbackName] = function(data) {
             delete window[callbackName];
