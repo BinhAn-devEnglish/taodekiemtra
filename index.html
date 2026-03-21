@@ -18,14 +18,16 @@
         
         .btn-main { width: 100%; padding: 15px; background: #2e7d32; color: white; border: none; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
         .btn-main:hover { background: #1b5e20; }
+        .btn-main:disabled { background: #81c784; cursor: not-allowed; }
 
-        /* Vùng chứa Prompt */
         .prompt-box { background: #fff3e0; border: 2px dashed #f57c00; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
         .prompt-box h3 { margin-top: 0; color: #e65100; font-size: 16px; margin-bottom: 10px; }
         .prompt-textarea { background: #fff; border: 1px solid #ffcc80; color: #333; font-size: 13px; line-height: 1.5; padding: 10px; border-radius: 4px; height: 210px; }
         .btn-copy { background: #f57c00; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; display: inline-block; transition: 0.2s; }
         .btn-copy:hover { background: #e65100; }
         .copy-success { color: #2e7d32; font-weight: bold; margin-left: 10px; display: none; }
+        
+        .note { font-size: 12px; color: #d32f2f; margin-top: 5px; font-style: italic; }
     </style>
 </head>
 <body>
@@ -40,8 +42,8 @@
             <input type="text" id="testName" placeholder="VD: BÀI TEST TIẾNG ANH - KÉO THẢ">
         </div>
         <div class="form-group">
-            <label>2. Tên Lớp:</label>
-            <input type="text" id="className" placeholder="VD: 4A2">
+            <label>2. Tên Lớp (Mặc định nếu không chia nhóm):</label>
+            <input type="text" id="className" placeholder="VD: Khối 4">
         </div>
     </div>
 
@@ -51,8 +53,9 @@
             <input type="number" id="timeLimit" value="15">
         </div>
         <div class="form-group">
-            <label>4. Danh sách học sinh (Mỗi dòng 1 tên):</label>
-            <textarea id="studentsList" rows="3" placeholder="Nguyễn Văn A&#10;Trần Thị B"></textarea>
+            <label>4. Link Google Sheet Danh sách Học sinh:</label>
+            <input type="text" id="sheetLink" placeholder="Dán link Google Sheet vào đây...">
+            <div class="note">* Bắt buộc: Dòng 1 phải là Tiêu đề cột (VD: Phòng Ban | Lớp | Tên). Cột cuối cùng phải là Tên. File Sheet phải được mở quyền "Bất kỳ ai có đường liên kết".</div>
         </div>
     </div>
 
@@ -82,7 +85,7 @@ Lưu ý: Bạn tự viết logic kéo thả, chọn đáp án, kiểm tra đúng
         <textarea id="customHTML" rows="10" placeholder=""></textarea>
     </div>
 
-    <button class="btn-main" onclick="generateFinalFile()">TẠO VÀ TẢI XUỐNG FILE ĐỀ THI</button>
+    <button id="btnGenerate" class="btn-main" onclick="generateFinalFile()">TẠO VÀ TẢI XUỐNG FILE ĐỀ THI</button>
 </div>
 
 <script>
@@ -97,20 +100,71 @@ function copyPrompt() {
     });
 }
 
-function generateFinalFile() {
+// Hàm chuẩn hóa chuỗi CSV thành mảng 2 chiều, xử lý được dấu phẩy nằm trong ngoặc kép
+function parseCSV(text) {
+    let p = '', row = [''], ret = [row], i = 0, r = 0, s = !0, l;
+    for (l of text) {
+        if ('"' === l) {
+            if (s && l === p) row[i] += l;
+            s = !s;
+        } else if (',' === l && s) l = row[++i] = '';
+        else if ('\n' === l && s) {
+            if ('\r' === p) row[i] = row[i].slice(0, -1);
+            row = ret[++r] = [l = '']; i = 0;
+        } else row[i] += l;
+        p = l;
+    }
+    if (ret[ret.length - 1][0] === '') ret.pop();
+    return ret;
+}
+
+async function generateFinalFile() {
     const testName = document.getElementById('testName').value.trim();
     const className = document.getElementById('className').value.trim();
     const timeLimit = document.getElementById('timeLimit').value.trim();
-    const studentsList = document.getElementById('studentsList').value.trim();
+    const sheetLink = document.getElementById('sheetLink').value.trim();
     const customHTML = document.getElementById('customHTML').value;
+    const btn = document.getElementById('btnGenerate');
 
-    if(!testName || !className || !timeLimit || !studentsList || !customHTML) {
-        alert("Vui lòng điền đầy đủ thông tin!");
+    if(!testName || !timeLimit || !sheetLink || !customHTML) {
+        alert("Vui lòng điền đầy đủ thông tin (Tên bài, thời gian, link Sheet, và code HTML)!");
         return;
     }
 
-    const studentsArray = studentsList.split('\n').map(s => s.trim()).filter(s => s !== '');
+    // Biến lưu trữ dữ liệu trích xuất từ Google Sheet
+    let sheetData = { headers: [], rows: [] };
 
+    try {
+        const match = sheetLink.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if (!match) throw new Error("Link Google Sheet không đúng định dạng. Hãy copy link trên thanh địa chỉ.");
+        const sheetId = match[1];
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+
+        btn.innerText = "⏳ ĐANG LẤY DỮ LIỆU TỪ SHEET...";
+        btn.disabled = true;
+
+        const response = await fetch(csvUrl);
+        if (!response.ok) throw new Error("Không thể truy cập dữ liệu. Bạn đã nhớ mở quyền chia sẻ file Sheet thành 'Bất kỳ ai có liên kết' chưa?");
+
+        const csvText = await response.text();
+        const parsedData = parseCSV(csvText);
+        
+        if (parsedData.length < 2) throw new Error("File Sheet trống hoặc không có dòng dữ liệu.");
+
+        sheetData.headers = parsedData[0].map(h => h.trim());
+        sheetData.rows = parsedData.slice(1).map(r => r.map(c => c.trim()));
+
+    } catch (error) {
+        alert("LỖI ĐỌC DỮ LIỆU: " + error.message);
+        btn.innerText = "TẠO VÀ TẢI XUỐNG FILE ĐỀ THI";
+        btn.disabled = false;
+        return;
+    }
+
+    btn.innerText = "TẠO VÀ TẢI XUỐNG FILE ĐỀ THI";
+    btn.disabled = false;
+
+    // Bơm dữ liệu JSON thẳng vào file cấu hình
     const finalHTML = `<!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -121,28 +175,118 @@ function generateFinalFile() {
 </head>
 <body>
 
+    <div id="xtd-top-bar" style="background:#fff; padding:15px; border-bottom:3px solid #2e7d32; display:flex; gap:15px; align-items:center; justify-content:center; flex-wrap:wrap; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin-bottom:20px;">
+        <strong style="color:#2e7d32; font-size:16px;">THÔNG TIN HỌC SINH:</strong>
+        <div id="xtd-dynamic-filters" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+    </div>
+
     ${customHTML}
 
     <script>
-        const students = ${JSON.stringify(studentsArray)};
-        const className = "${className}";
+        const sheetData = ${JSON.stringify(sheetData)};
         const testName = "${testName}";
+        let lopMacDinh = "${className}";
         let timeLeft = ${timeLimit} * 60;
         let timerInterval;
         let isSubmitted = false;
 
         window.onload = function() {
-            const lopSelect = document.getElementById('id_input_lop');
-            const tenSelect = document.getElementById('id_input_ten');
-            
-            if(lopSelect) lopSelect.innerHTML = '<option value="' + className + '">' + className + '</option>';
-            if(tenSelect) {
-                tenSelect.innerHTML = '<option value="">-- Chọn tên --</option>';
-                students.forEach(name => {
-                    tenSelect.innerHTML += '<option value="' + name + '">' + name + '</option>';
+            initDynamicFilters();
+            initTimer();
+            hideAIInputs();
+        };
+
+        function hideAIInputs() {
+            const aiLop = document.getElementById('id_input_lop');
+            const aiTen = document.getElementById('id_input_ten');
+            // Ẩn các ô nhập liệu thừa do AI tự sinh ra vì ta đã có Top Bar
+            if(aiLop) { aiLop.style.display = 'none'; if(aiLop.previousElementSibling && aiLop.previousElementSibling.tagName==='LABEL') aiLop.previousElementSibling.style.display = 'none'; }
+            if(aiTen) { aiTen.style.display = 'none'; if(aiTen.previousElementSibling && aiTen.previousElementSibling.tagName==='LABEL') aiTen.previousElementSibling.style.display = 'none'; }
+        }
+
+        function initDynamicFilters() {
+            const container = document.getElementById('xtd-dynamic-filters');
+            const headers = sheetData.headers;
+            const rows = sheetData.rows;
+            let currentFilters = new Array(headers.length).fill('');
+
+            function renderSelects() {
+                container.innerHTML = '';
+                
+                headers.forEach((header, colIndex) => {
+                    const select = document.createElement('select');
+                    select.style.padding = '8px';
+                    select.style.borderRadius = '4px';
+                    select.style.border = '1px solid #ccc';
+                    select.style.minWidth = '150px';
+                    select.innerHTML = '<option value="">-- Chọn ' + header + ' --</option>';
+
+                    let validRows = rows.filter(row => {
+                        for(let i = 0; i < colIndex; i++) {
+                            if(currentFilters[i] && row[i] !== currentFilters[i]) return false;
+                        }
+                        return true;
+                    });
+
+                    let uniqueValues = [...new Set(validRows.map(row => row[colIndex]))].filter(v => v);
+
+                    uniqueValues.forEach(val => {
+                        const opt = document.createElement('option');
+                        opt.value = val;
+                        opt.innerText = val;
+                        if(currentFilters[colIndex] === val) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+
+                    select.onchange = (e) => {
+                        currentFilters[colIndex] = e.target.value;
+                        // Xóa kết quả chọn của các cột con ở phía sau
+                        for(let i = colIndex + 1; i < headers.length; i++) {
+                            currentFilters[i] = '';
+                        }
+                        renderSelects();
+                        syncHiddenValues();
+                    };
+
+                    container.appendChild(select);
                 });
             }
 
+            function syncHiddenValues() {
+                // Tạo hoặc cập nhật ô input ẩn để hàm handleSubmit() có thể lấy được giá trị
+                let tenInput = document.getElementById('id_input_ten');
+                if(!tenInput) {
+                    tenInput = document.createElement('input');
+                    tenInput.type = 'hidden';
+                    tenInput.id = 'id_input_ten';
+                    document.body.appendChild(tenInput);
+                }
+                
+                // Cột cuối cùng luôn được hiểu là Tên học sinh
+                const isFullNameSelected = currentFilters[headers.length - 1] !== '';
+                tenInput.value = isFullNameSelected ? currentFilters[headers.length - 1] : '';
+
+                let lopInput = document.getElementById('id_input_lop');
+                if(!lopInput) {
+                    lopInput = document.createElement('input');
+                    lopInput.type = 'hidden';
+                    lopInput.id = 'id_input_lop';
+                    document.body.appendChild(lopInput);
+                }
+                
+                // Gom các cột lọc trước đó làm Tên Lớp/Phòng Ban
+                if (headers.length > 1) {
+                    lopInput.value = currentFilters.slice(0, -1).filter(v => v).join(' - ');
+                } else {
+                    lopInput.value = lopMacDinh;
+                }
+            }
+
+            renderSelects();
+            syncHiddenValues();
+        }
+
+        function initTimer() {
             const timerDisplay = document.getElementById('timer-display');
             if(timerDisplay) {
                 timerInterval = setInterval(function() {
@@ -158,9 +302,8 @@ function generateFinalFile() {
                     timeLeft--;
                 }, 1000);
             }
-        };
+        }
 
-        // Hàm hỗ trợ chèn banner điểm và hiện đáp án
         function showResultAndAnswers(diemHienThi, isOffline = false) {
             const oldBanner = document.getElementById('xtd-result-banner');
             if (oldBanner) oldBanner.remove();
@@ -173,9 +316,11 @@ function generateFinalFile() {
             const title = isOffline ? '[OFFLINE] KẾT QUẢ BÀI LÀM' : 'BẠN ĐÃ HOÀN THÀNH BÀI KIỂM TRA!';
             
             banner.innerHTML = '<div style="text-align:center; background:' + bgColor + '; color:' + textColor + '; padding:20px; border-radius:8px; margin:20px 10px; border:2px solid ' + borderColor + '; font-size: 20px; font-weight: bold;">' + title + '<br><span style="font-size: 28px;">Điểm: ' + diemHienThi + '/10</span></div>';
-            document.body.insertBefore(banner, document.body.firstChild);
+            
+            // Chèn dưới thanh Top Bar thay vì trên cùng
+            const topBar = document.getElementById('xtd-top-bar');
+            topBar.parentNode.insertBefore(banner, topBar.nextSibling);
 
-            // Đổi trạng thái nút nộp bài thay vì xóa đi
             const allButtons = document.querySelectorAll('button');
             allButtons.forEach(btn => {
                 const onClickAttr = btn.getAttribute('onclick');
@@ -187,14 +332,12 @@ function generateFinalFile() {
                 }
             });
 
-            // Gọi hàm hiện đáp án của AI
             if (typeof window.showAnswers === "function") {
                 window.showAnswers();
             } else {
                 console.warn("AI không cung cấp hàm showAnswers(). Không thể hiển thị giải thích.");
             }
 
-            // Cuộn lên đầu trang để học sinh thấy điểm
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -202,11 +345,12 @@ function generateFinalFile() {
             if(isSubmitted) return;
             
             let hoTen = "";
-            let lop = className;
+            let lop = lopMacDinh;
             if(document.getElementById('id_input_ten')) hoTen = document.getElementById('id_input_ten').value;
+            if(document.getElementById('id_input_lop') && document.getElementById('id_input_lop').value !== "") lop = document.getElementById('id_input_lop').value;
             
-            if(!hoTen && !isAutoSubmit) { alert("Vui lòng chọn Họ tên trước khi nộp!"); return; }
-            if(!hoTen && isAutoSubmit) hoTen = "Chưa nhập tên (Hết giờ)";
+            if(!hoTen && !isAutoSubmit) { alert("Vui lòng chọn đầy đủ thông tin Họ tên ở thanh công cụ phía trên trước khi nộp!"); return; }
+            if(!hoTen && isAutoSubmit) hoTen = "Chưa chọn tên (Hết giờ)";
 
             let unanswered = 0;
             if (typeof window.getUnanswered === "function") {
@@ -242,14 +386,12 @@ function generateFinalFile() {
 
             setTimeout(() => {
                 const diemHienThi = Math.round(diemTong * 10) / 10;
-                
                 try {
                     EduTech.submitResult({
                         tenBai: testName, hoTen: hoTen, lop: lop, diemTong: diemTong
                     }, 
                     function() { 
                         alert("Nộp bài thành công! Điểm của bạn: " + diemHienThi + "/10");
-                        // Sửa logic thành hiển thị banner và show đáp án
                         showResultAndAnswers(diemHienThi, false);
                     }, 
                     function() { 
@@ -266,7 +408,7 @@ function generateFinalFile() {
                     });
                 } catch(e) {
                     alert("Không có mạng hoặc lỗi Core! Hệ thống sẽ hiển thị điểm offline: " + diemHienThi + "/10");
-                    isSubmitted = true; // Chấp nhận nộp offline để được xem giải thích
+                    isSubmitted = true;
                     showResultAndAnswers(diemHienThi, true);
                     console.error(e);
                 }
@@ -280,7 +422,7 @@ function generateFinalFile() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `DeThi_DaNang_${className}_${Date.now()}.html`;
+    a.download = `DeThi_DaNang_${Date.now()}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
