@@ -4,64 +4,426 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công Cụ Sinh Đề Thi Đa Năng - Xanh Tuệ Đức</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
-        .container { max-width: 900px; margin: auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2e7d32; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
-        
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
-        input[type="text"], input[type="number"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: monospace; }
-        textarea { resize: vertical; }
-        
-        .btn-main { width: 100%; padding: 15px; background: #2e7d32; color: white; border: none; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-main:hover { background: #1b5e20; }
-        .btn-main:disabled { background: #81c784; cursor: not-allowed; }
+        :root {
+            --green-dark: #1b5e20;
+            --green-main: #2e7d32;
+            --green-light: #4caf50;
+            --green-pale: #e8f5e9;
+            --orange: #f57c00;
+            --orange-light: #fff3e0;
+            --github: #24292f;
+            --github-hover: #0d1117;
+            --red: #d32f2f;
+            --bg: #f0f4f0;
+            --card: #ffffff;
+            --border: #dde5dd;
+            --text: #1a2e1a;
+            --text-muted: #5a7a5a;
+            --shadow: 0 2px 12px rgba(46,125,50,0.10);
+            --radius: 10px;
+        }
 
-        .prompt-box { background: #fff3e0; border: 2px dashed #f57c00; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
-        .prompt-box h3 { margin-top: 0; color: #e65100; font-size: 16px; margin-bottom: 10px; }
-        .prompt-textarea { background: #fff; border: 1px solid #ffcc80; color: #333; font-size: 13px; line-height: 1.5; padding: 10px; border-radius: 4px; height: 210px; }
-        .btn-copy { background: #f57c00; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; display: inline-block; transition: 0.2s; }
-        .btn-copy:hover { background: #e65100; }
-        .copy-success { color: #2e7d32; font-weight: bold; margin-left: 10px; display: none; }
-        
-        .note { font-size: 12px; color: #d32f2f; margin-top: 5px; font-style: italic; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Be Vietnam Pro', Arial, sans-serif;
+            background: var(--bg);
+            padding: 24px 16px 48px;
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 920px;
+            margin: auto;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-main) 60%, var(--green-light) 100%);
+            border-radius: 16px;
+            padding: 28px 32px 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 180px; height: 180px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; right: 60px;
+            width: 240px; height: 240px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+        }
+        .header h1 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .header .subtitle {
+            color: rgba(255,255,255,0.75);
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow);
+        }
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--green-main);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title .icon {
+            width: 26px; height: 26px;
+            background: var(--green-pale);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+        }
+
+        /* ── GITHUB CARD ── */
+        .card.github-card {
+            border-color: #d0d7de;
+            border-left: 4px solid var(--github);
+        }
+        .card.github-card .card-title { color: var(--github); }
+        .card.github-card .card-title .icon { background: #f6f8fa; }
+
+        /* ── GRID ── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+        /* ── FORM ELEMENTS ── */
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 7px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text);
+            background: #fafcfa;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        input:focus, textarea:focus {
+            border-color: var(--green-light);
+            box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
+            background: #fff;
+        }
+        .github-card input:focus {
+            border-color: #57606a;
+            box-shadow: 0 0 0 3px rgba(36,41,47,0.10);
+        }
+        textarea { resize: vertical; }
+
+        .note {
+            font-size: 11px;
+            color: var(--red);
+            font-style: italic;
+            margin-top: 3px;
+            line-height: 1.5;
+        }
+        .note.info { color: var(--text-muted); }
+
+        /* ── TOKEN ROW ── */
+        .token-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        .token-row .form-group { flex: 1; }
+        .btn-icon {
+            height: 42px;
+            padding: 0 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 7px;
+            background: #f6f8fa;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: 0.2s;
+            white-space: nowrap;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .btn-icon:hover { background: #eaeef2; color: var(--text); border-color: #aaa; }
+        .btn-icon.danger:hover { background: #ffeaea; color: var(--red); border-color: var(--red); }
+
+        /* ── PROMPT BOX ── */
+        .prompt-box {
+            background: var(--orange-light);
+            border: 2px dashed #ffb74d;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .prompt-box .card-title { color: #e65100; margin-bottom: 12px; }
+        .prompt-box .card-title .icon { background: #ffe0b2; }
+        .prompt-textarea {
+            background: #fff;
+            border: 1.5px solid #ffcc80;
+            color: var(--text);
+            font-size: 12.5px;
+            line-height: 1.6;
+            height: 200px;
+            border-radius: 7px;
+        }
+        .prompt-textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(245,124,0,0.12); }
+
+        /* ── BUTTONS ── */
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 4px;
+        }
+        .btn-main {
+            padding: 15px 20px;
+            color: white;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+        .btn-main:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+        }
+        .btn-main:active:not(:disabled) { transform: translateY(0); }
+        .btn-main:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+        .btn-download { background: linear-gradient(135deg, #388e3c, var(--green-main)); }
+        .btn-download:hover:not(:disabled) { background: linear-gradient(135deg, var(--green-main), #1b5e20); }
+
+        .btn-github { background: linear-gradient(135deg, #374151, var(--github)); }
+        .btn-github:hover:not(:disabled) { background: linear-gradient(135deg, var(--github), #0d1117); }
+
+        .btn-copy-prompt {
+            background: var(--orange);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 13px;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .btn-copy-prompt:hover { background: #e65100; }
+
+        .copy-success {
+            color: var(--green-main);
+            font-weight: 600;
+            font-size: 13px;
+            margin-left: 8px;
+            display: none;
+        }
+
+        /* ── RESULT LINK ── */
+        .result-box {
+            display: none;
+            background: #e8f5e9;
+            border: 2px solid var(--green-light);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin-top: 14px;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        .result-box .result-title {
+            font-weight: 700;
+            color: var(--green-dark);
+            font-size: 13px;
+            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .link-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .link-display {
+            flex: 1;
+            padding: 9px 12px;
+            background: #fff;
+            border: 1.5px solid #a5d6a7;
+            border-radius: 7px;
+            font-size: 13px;
+            color: var(--green-dark);
+            font-weight: 600;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+        }
+        .btn-copy-link {
+            padding: 9px 14px;
+            background: var(--green-main);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: inherit;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-copy-link:hover { background: var(--green-dark); }
+
+        .warning-box {
+            display: none;
+            background: #fff8e1;
+            border: 1.5px solid #ffd54f;
+            border-radius: 7px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #795548;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        /* ── SPINNER ── */
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2.5px solid rgba(255,255,255,0.35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .grid-2, .grid-3, .btn-row { grid-template-columns: 1fr; }
+            .header { padding: 20px; }
+            .card { padding: 16px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>HỆ THỐNG TẠO ĐỀ THI ĐA DẠNG XTD</h1>
-    <div class="subtitle">Hỗ trợ trắc nghiệm, điền từ, kéo thả, nối câu... qua AI</div>
-    
-    <div class="grid-2">
-        <div class="form-group">
-            <label>1. Tên bài kiểm tra (Đẩy lên máy chủ):</label>
-            <input type="text" id="testName" placeholder="VD: BÀI TEST TIẾNG ANH - KÉO THẢ">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>🎓 HỆ THỐNG TẠO ĐỀ THI ĐA DẠNG XTD</h1>
+        <div class="subtitle">Hỗ trợ trắc nghiệm, điền từ, kéo thả, nối câu... · Tích hợp upload GitHub Pages</div>
+    </div>
+
+    <!-- CARD 1: THÔNG TIN CƠ BẢN -->
+    <div class="card">
+        <div class="card-title"><span class="icon">📋</span> Thông tin bài kiểm tra</div>
+        <div class="grid-2" style="margin-bottom:14px;">
+            <div class="form-group">
+                <label>1. Tên bài kiểm tra</label>
+                <input type="text" id="testName" placeholder="VD: BÀI TEST TIẾNG ANH - KÉO THẢ">
+            </div>
+            <div class="form-group">
+                <label>2. Tên lớp (mặc định)</label>
+                <input type="text" id="className" placeholder="VD: Khối 4">
+            </div>
         </div>
-        <div class="form-group">
-            <label>2. Tên Lớp (Mặc định nếu không chia nhóm):</label>
-            <input type="text" id="className" placeholder="VD: Khối 4">
+        <div class="grid-2">
+            <div class="form-group">
+                <label>3. Thời gian làm bài (phút)</label>
+                <input type="number" id="timeLimit" value="15" min="1">
+            </div>
+            <div class="form-group">
+                <label>4. Link Google Sheet học sinh</label>
+                <input type="text" id="sheetLink" placeholder="Dán link Google Sheet vào đây...">
+                <div class="note">* Dòng 1 phải là tiêu đề cột. Cột cuối là Tên. Mở quyền "Bất kỳ ai có đường liên kết".</div>
+            </div>
         </div>
     </div>
 
-    <div class="grid-2">
-        <div class="form-group">
-            <label>3. Thời gian làm bài (Phút):</label>
-            <input type="number" id="timeLimit" value="15">
+    <!-- CARD 2: GITHUB CONFIG -->
+    <div class="card github-card">
+        <div class="card-title"><span class="icon">🐙</span> Cấu hình GitHub (lưu tự động)</div>
+
+        <div class="grid-3" style="margin-bottom: 14px;">
+            <div class="form-group">
+                <label>GitHub Username</label>
+                <input type="text" id="ghOwner" placeholder="VD: nguyen-van-a">
+            </div>
+            <div class="form-group">
+                <label>Tên Repository</label>
+                <input type="text" id="ghRepo" placeholder="VD: de-thi-xtd">
+            </div>
+            <div class="form-group">
+                <label>Branch</label>
+                <input type="text" id="ghBranch" placeholder="main" value="main">
+            </div>
         </div>
-        <div class="form-group">
-            <label>4. Link Google Sheet Danh sách Học sinh:</label>
-            <input type="text" id="sheetLink" placeholder="Dán link Google Sheet vào đây...">
-            <div class="note">* Bắt buộc: Dòng 1 phải là Tiêu đề cột (VD: Phòng Ban | Lớp | Tên). Cột cuối cùng phải là Tên. File Sheet phải được mở quyền "Bất kỳ ai có đường liên kết".</div>
+
+        <div class="token-row">
+            <div class="form-group">
+                <label>Personal Access Token (PAT)</label>
+                <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+            </div>
+            <button class="btn-icon" onclick="toggleTokenVisibility()" id="btnToggleToken" title="Hiện/ẩn token">👁 Hiện</button>
+            <button class="btn-icon danger" onclick="clearGithubConfig()" title="Xóa toàn bộ cấu hình đã lưu">🗑 Xóa lưu</button>
+        </div>
+        <div class="note info" style="margin-top:8px;">
+            💡 Token cần scope <strong>repo</strong> (hoặc <strong>public_repo</strong>). Cấu hình được lưu trong localStorage của trình duyệt này. · 
+            <a href="https://github.com/settings/tokens/new" target="_blank" style="color:var(--green-main);">Tạo token tại đây →</a>
+        </div>
+
+        <div class="warning-box" id="warningGHPages">
+            ⚠️ <strong>Lưu ý:</strong> Repo cần được bật <strong>GitHub Pages</strong> trước. Vào <em>Settings → Pages → Source: Deploy from branch → main</em>. 
+            File sẽ có sẵn sau ~1-2 phút kể từ khi upload thành công.
         </div>
     </div>
 
-    <div class="prompt-box">
-        <h3>🤖 BƯỚC 5: Lấy mã HTML từ AI (Hỗ trợ mọi dạng bài tập)</h3>
-        <textarea id="promptText" class="prompt-textarea" readonly>Đóng vai trò là một chuyên gia Lập trình Web và Thiết kế bài giảng. Hãy viết 1 đoạn mã HTML kết hợp CSS và JS (chung trong 1 file) cho một bài tập tương tác.
+    <!-- CARD 3: PROMPT AI -->
+    <div class="card" style="padding:0; border:none; box-shadow:none; background:transparent;">
+        <div class="prompt-box">
+            <div class="card-title"><span class="icon">🤖</span> Bước 5: Lấy mã HTML từ AI (hỗ trợ mọi dạng bài tập)</div>
+            <textarea id="promptText" class="prompt-textarea" readonly>Đóng vai trò là một chuyên gia Lập trình Web và Thiết kế bài giảng. Hãy viết 1 đoạn mã HTML kết hợp CSS và JS (chung trong 1 file) cho một bài tập tương tác.
 - Chủ đề giao diện: [VD: Vui nhộn / Không gian / Đơn giản].
 - Dạng bài tập: [VD: Điền từ vào chỗ trống / Kéo thả đáp án / Nối câu / Trắc nghiệm / Hỗn hợp].
 - Nội dung câu hỏi: [DÁN ĐỀ BÀI CỦA BẠN VÀO ĐÂY].
@@ -74,33 +436,152 @@ YÊU CẦU BẮT BUỘC VỀ KỸ THUẬT ĐỂ TÍCH HỢP HỆ THỐNG:
    - function getScore() { ... } // Tự tính toán logic và trả về điểm số thang 10 (kiểu Float 0 đến 10).
    - function showAnswers() { ... } // Khóa làm bài, hiển thị đáp án đúng, tô màu đúng/sai và HIỂN THỊ GIẢI THÍCH CHI TIẾT (nếu có) dưới mỗi câu hỏi.
 Lưu ý: Bạn tự viết logic kéo thả, chọn đáp án, kiểm tra đúng sai bên trong JS. Không cần viết logic đồng hồ đếm ngược hay gửi API. Chỉ cần xuất ra mã HTML/CSS/JS hoàn chỉnh nhất, không giải thích.</textarea>
-        <div>
-            <button class="btn-copy" onclick="copyPrompt()">📋 Copy Prompt Nhờ AI</button>
-            <span id="copyMsg" class="copy-success">✔ Đã copy thành công!</span>
+            <div>
+                <button class="btn-copy-prompt" onclick="copyPrompt()">📋 Copy Prompt Nhờ AI</button>
+                <span id="copyMsg" class="copy-success">✔ Đã copy thành công!</span>
+            </div>
         </div>
     </div>
 
-    <div class="form-group">
-        <label>6. Dán mã HTML/CSS/JS do AI sinh ra vào đây:</label>
-        <textarea id="customHTML" rows="10" placeholder=""></textarea>
+    <!-- CARD 4: HTML DO AI SINH -->
+    <div class="card">
+        <div class="card-title"><span class="icon">💻</span> Bước 6: Dán mã HTML/CSS/JS do AI sinh ra</div>
+        <textarea id="customHTML" rows="10" placeholder="Dán code HTML do AI sinh ra vào đây..."></textarea>
     </div>
 
-    <button id="btnGenerate" class="btn-main" onclick="generateFinalFile()">TẠO VÀ TẢI XUỐNG FILE ĐỀ THI</button>
+    <!-- BUTTONS -->
+    <div class="btn-row">
+        <button class="btn-main btn-download" id="btnDownload" onclick="generateFinalFile('download')">
+            <span class="spinner" id="spinDownload"></span>
+            ⬇️ TẢI XUỐNG FILE ĐỀ THI
+        </button>
+        <button class="btn-main btn-github" id="btnUpload" onclick="generateFinalFile('github')">
+            <span class="spinner" id="spinUpload"></span>
+            🚀 UPLOAD LÊN GITHUB PAGES
+        </button>
+    </div>
+
+    <!-- KẾT QUẢ LINK -->
+    <div class="result-box" id="resultBox">
+        <div class="result-title">✅ Upload thành công! Link chia sẻ cho học sinh:</div>
+        <div class="link-row">
+            <div class="link-display" id="resultLink">—</div>
+            <button class="btn-copy-link" onclick="copyResultLink()">📋 Copy Link</button>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">
+            ⏱ GitHub Pages cần ~1-2 phút để kích hoạt. Hãy thử mở link sau ít phút.
+        </div>
+    </div>
+
 </div>
 
 <script>
-function copyPrompt() {
-    const promptText = document.getElementById("promptText");
-    promptText.select();
-    promptText.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(promptText.value).then(() => {
-        const msg = document.getElementById("copyMsg");
-        msg.style.display = "inline";
-        setTimeout(() => { msg.style.display = "none"; }, 4000);
+// ═══════════════════════════════════════════════
+//  KHỞI TẠO: Load cấu hình GitHub từ localStorage
+// ═══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('xtd_github_config');
+    if (saved) {
+        try {
+            const cfg = JSON.parse(saved);
+            document.getElementById('ghOwner').value  = cfg.owner  || '';
+            document.getElementById('ghRepo').value   = cfg.repo   || '';
+            document.getElementById('ghBranch').value = cfg.branch || 'main';
+            document.getElementById('ghToken').value  = cfg.token  || '';
+        } catch(e) {}
+    }
+
+    // Hiện warning GitHub Pages mỗi lần mở nếu chưa có config
+    const hasConfig = !!localStorage.getItem('xtd_github_config');
+    if (!hasConfig) {
+        document.getElementById('warningGHPages').style.display = 'block';
+    }
+
+    // Lưu config khi blur khỏi bất kỳ field GitHub nào
+    ['ghOwner','ghRepo','ghBranch','ghToken'].forEach(id => {
+        document.getElementById(id).addEventListener('blur', saveGithubConfig);
     });
+});
+
+function saveGithubConfig() {
+    const cfg = {
+        owner:  document.getElementById('ghOwner').value.trim(),
+        repo:   document.getElementById('ghRepo').value.trim(),
+        branch: document.getElementById('ghBranch').value.trim() || 'main',
+        token:  document.getElementById('ghToken').value.trim(),
+    };
+    localStorage.setItem('xtd_github_config', JSON.stringify(cfg));
+    document.getElementById('warningGHPages').style.display = cfg.owner ? 'none' : 'block';
 }
 
-// CÔNG NGHỆ JSONP: Vượt màng lọc bảo mật CORS
+function clearGithubConfig() {
+    if (!confirm('Xóa toàn bộ cấu hình GitHub đã lưu (token, username, repo)?')) return;
+    localStorage.removeItem('xtd_github_config');
+    ['ghOwner','ghRepo','ghBranch','ghToken'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('ghBranch').value = 'main';
+    document.getElementById('warningGHPages').style.display = 'block';
+}
+
+function toggleTokenVisibility() {
+    const inp = document.getElementById('ghToken');
+    const btn = document.getElementById('btnToggleToken');
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.textContent = '🙈 Ẩn';
+    } else {
+        inp.type = 'password';
+        btn.textContent = '👁 Hiện';
+    }
+}
+
+// ═══════════════════════════════════════════════
+//  SANITIZE tên bài → tên file
+// ═══════════════════════════════════════════════
+function sanitizeFileName(str) {
+    // Bảng chuyển tiếng Việt có dấu → không dấu
+    const map = {
+        'à':'a','á':'a','ả':'a','ã':'a','ạ':'a',
+        'ă':'a','ắ':'a','ằ':'a','ẳ':'a','ẵ':'a','ặ':'a',
+        'â':'a','ấ':'a','ầ':'a','ẩ':'a','ẫ':'a','ậ':'a',
+        'è':'e','é':'e','ẻ':'e','ẽ':'e','ẹ':'e',
+        'ê':'e','ế':'e','ề':'e','ể':'e','ễ':'e','ệ':'e',
+        'ì':'i','í':'i','ỉ':'i','ĩ':'i','ị':'i',
+        'ò':'o','ó':'o','ỏ':'o','õ':'o','ọ':'o',
+        'ô':'o','ố':'o','ồ':'o','ổ':'o','ỗ':'o','ộ':'o',
+        'ơ':'o','ớ':'o','ờ':'o','ở':'o','ỡ':'o','ợ':'o',
+        'ù':'u','ú':'u','ủ':'u','ũ':'u','ụ':'u',
+        'ư':'u','ứ':'u','ừ':'u','ử':'u','ữ':'u','ự':'u',
+        'ỳ':'y','ý':'y','ỷ':'y','ỹ':'y','ỵ':'y',
+        'đ':'d',
+        'À':'A','Á':'A','Ả':'A','Ã':'A','Ạ':'A',
+        'Ă':'A','Ắ':'A','Ằ':'A','Ẳ':'A','Ẵ':'A','Ặ':'A',
+        'Â':'A','Ấ':'A','Ầ':'A','Ẩ':'A','Ẫ':'A','Ậ':'A',
+        'È':'E','É':'E','Ẻ':'E','Ẽ':'E','Ẹ':'E',
+        'Ê':'E','Ế':'E','Ề':'E','Ể':'E','Ễ':'E','Ệ':'E',
+        'Ì':'I','Í':'I','Ỉ':'I','Ĩ':'I','Ị':'I',
+        'Ò':'O','Ó':'O','Ỏ':'O','Õ':'O','Ọ':'O',
+        'Ô':'O','Ố':'O','Ồ':'O','Ổ':'O','Ỗ':'O','Ộ':'O',
+        'Ơ':'O','Ớ':'O','Ờ':'O','Ở':'O','Ỡ':'O','Ợ':'O',
+        'Ù':'U','Ú':'U','Ủ':'U','Ũ':'U','Ụ':'U',
+        'Ư':'U','Ứ':'U','Ừ':'U','Ử':'U','Ữ':'U','Ự':'U',
+        'Ỳ':'Y','Ý':'Y','Ỷ':'Y','Ỹ':'Y','Ỵ':'Y',
+        'Đ':'D',
+    };
+    return str
+        .split('')
+        .map(c => map[c] || c)
+        .join('')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')   // ký tự không hợp lệ → gạch nối
+        .replace(/^-+|-+$/g, '')        // trim gạch nối đầu/cuối
+        .substring(0, 80);              // giới hạn độ dài
+}
+
+// ═══════════════════════════════════════════════
+//  JSONP: Fetch Google Sheet (bypass CORS)
+// ═══════════════════════════════════════════════
 function fetchSheetDataJSONP(sheetId) {
     return new Promise((resolve, reject) => {
         const callbackName = 'gvizCallback_' + Math.round(Math.random() * 100000);
@@ -108,28 +589,23 @@ function fetchSheetDataJSONP(sheetId) {
 
         window[callbackName] = function(data) {
             delete window[callbackName];
-            document.getElementById(callbackName).remove();
+            document.getElementById(callbackName)?.remove();
 
-            if (data.status === 'error') {
-                reject(new Error(data.errors[0].message));
-                return;
-            }
+            if (data.status === 'error') { reject(new Error(data.errors[0].message)); return; }
 
             try {
                 const table = data.table;
                 const headers = table.cols.map(col => col.label ? col.label.trim() : '');
-                const rows = table.rows.map(row => {
-                    return row.c.map(cell => {
+                const rows = table.rows.map(row =>
+                    row.c.map(cell => {
                         if (!cell) return '';
                         if (cell.f) return String(cell.f).trim();
                         if (cell.v !== null && cell.v !== undefined) return String(cell.v).trim();
                         return '';
-                    });
-                });
+                    })
+                );
                 resolve({ headers, rows });
-            } catch (e) {
-                reject(new Error("Cấu trúc file Sheet không hợp lệ."));
-            }
+            } catch (e) { reject(new Error("Cấu trúc file Sheet không hợp lệ.")); }
         };
 
         const script = document.createElement('script');
@@ -137,53 +613,18 @@ function fetchSheetDataJSONP(sheetId) {
         script.src = url;
         script.onerror = () => {
             delete window[callbackName];
-            document.getElementById(callbackName).remove();
-            reject(new Error("Không thể kết nối. Hãy kiểm tra lại link Sheet và quyền chia sẻ (Bất kỳ ai có liên kết)."));
+            document.getElementById(callbackName)?.remove();
+            reject(new Error("Không thể kết nối. Kiểm tra lại link Sheet và quyền chia sẻ."));
         };
         document.body.appendChild(script);
     });
 }
 
-async function generateFinalFile() {
-    const testName = document.getElementById('testName').value.trim();
-    const className = document.getElementById('className').value.trim();
-    const timeLimit = document.getElementById('timeLimit').value.trim();
-    const sheetLink = document.getElementById('sheetLink').value.trim();
-    const customHTML = document.getElementById('customHTML').value;
-    const btn = document.getElementById('btnGenerate');
-
-    if(!testName || !timeLimit || !sheetLink || !customHTML) {
-        alert("Vui lòng điền đầy đủ thông tin (Tên bài, thời gian, link Sheet, và code HTML)!");
-        return;
-    }
-
-    let sheetData = { headers: [], rows: [] };
-
-    try {
-        const match = sheetLink.match(/\/d\/([a-zA-Z0-9-_]+)/);
-        if (!match) throw new Error("Link Google Sheet không đúng định dạng. Hãy copy link trên thanh địa chỉ.");
-        const sheetId = match[1];
-
-        btn.innerText = "⏳ ĐANG LẤY DỮ LIỆU TỪ SHEET...";
-        btn.disabled = true;
-
-        sheetData = await fetchSheetDataJSONP(sheetId);
-        
-        if (sheetData.headers.length === 0 || sheetData.rows.length === 0) {
-            throw new Error("File Sheet trống hoặc không nhận diện được cột dữ liệu.");
-        }
-
-    } catch (error) {
-        alert("LỖI ĐỌC DỮ LIỆU: " + error.message);
-        btn.innerText = "TẠO VÀ TẢI XUỐNG FILE ĐỀ THI";
-        btn.disabled = false;
-        return;
-    }
-
-    btn.innerText = "TẠO VÀ TẢI XUỐNG FILE ĐỀ THI";
-    btn.disabled = false;
-
-    const finalHTML = `<!DOCTYPE html>
+// ═══════════════════════════════════════════════
+//  BUILD HTML CUỐI CÙNG
+// ═══════════════════════════════════════════════
+function buildFinalHTML(testName, className, timeLimit, sheetData, customHTML) {
+    return `<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -202,8 +643,8 @@ async function generateFinalFile() {
 
     <script>
         const sheetData = ${JSON.stringify(sheetData)};
-        const testName = "${testName}";
-        let lopMacDinh = "${className}";
+        const testName = "${testName.replace(/"/g, '\\"')}";
+        let lopMacDinh = "${className.replace(/"/g, '\\"')}";
         let timeLeft = ${timeLimit} * 60;
         let timerInterval;
         let isSubmitted = false;
@@ -214,19 +655,11 @@ async function generateFinalFile() {
             hideAIInputs();
         };
 
-        // BẢO VỆ DOM: Xóa xổ hoàn toàn các ô do AI lỡ sinh ra
         function hideAIInputs() {
             const aiLop = document.getElementById('id_input_lop');
             const aiTen = document.getElementById('id_input_ten');
-            
-            if(aiLop) { 
-                if(aiLop.previousElementSibling && aiLop.previousElementSibling.tagName==='LABEL') aiLop.previousElementSibling.remove();
-                aiLop.remove(); 
-            }
-            if(aiTen) { 
-                if(aiTen.previousElementSibling && aiTen.previousElementSibling.tagName==='LABEL') aiTen.previousElementSibling.remove();
-                aiTen.remove(); 
-            }
+            if(aiLop) { if(aiLop.previousElementSibling?.tagName==='LABEL') aiLop.previousElementSibling.remove(); aiLop.remove(); }
+            if(aiTen) { if(aiTen.previousElementSibling?.tagName==='LABEL') aiTen.previousElementSibling.remove(); aiTen.remove(); }
         }
 
         function initDynamicFilters() {
@@ -237,13 +670,9 @@ async function generateFinalFile() {
 
             function renderSelects() {
                 container.innerHTML = '';
-                
                 headers.forEach((header, colIndex) => {
                     const select = document.createElement('select');
-                    select.style.padding = '8px';
-                    select.style.borderRadius = '4px';
-                    select.style.border = '1px solid #ccc';
-                    select.style.minWidth = '150px';
+                    select.style.cssText = 'padding:8px; border-radius:4px; border:1px solid #ccc; min-width:150px;';
                     select.innerHTML = '<option value="">-- Chọn ' + (header || 'Cột ' + (colIndex+1)) + ' --</option>';
 
                     let validRows = rows.filter(row => {
@@ -253,55 +682,31 @@ async function generateFinalFile() {
                         return true;
                     });
 
-                    let uniqueValues = [...new Set(validRows.map(row => row[colIndex]))].filter(v => v);
-
-                    uniqueValues.forEach(val => {
+                    [...new Set(validRows.map(row => row[colIndex]))].filter(v => v).forEach(val => {
                         const opt = document.createElement('option');
-                        opt.value = val;
-                        opt.innerText = val;
+                        opt.value = val; opt.innerText = val;
                         if(currentFilters[colIndex] === val) opt.selected = true;
                         select.appendChild(opt);
                     });
 
                     select.onchange = (e) => {
                         currentFilters[colIndex] = e.target.value;
-                        for(let i = colIndex + 1; i < headers.length; i++) {
-                            currentFilters[i] = '';
-                        }
+                        for(let i = colIndex + 1; i < headers.length; i++) currentFilters[i] = '';
                         renderSelects();
                         syncHiddenValues();
                     };
-
                     container.appendChild(select);
                 });
             }
 
-            // BỘ NHỚ NGẦM MỚI: Không xung đột với AI
             function syncHiddenValues() {
                 let realTen = document.getElementById('xtd_real_ten');
-                if(!realTen) {
-                    realTen = document.createElement('input');
-                    realTen.type = 'hidden';
-                    realTen.id = 'xtd_real_ten';
-                    document.body.appendChild(realTen);
-                }
-                
-                const isFullNameSelected = currentFilters[headers.length - 1] !== '';
-                realTen.value = isFullNameSelected ? currentFilters[headers.length - 1] : '';
+                if(!realTen) { realTen = document.createElement('input'); realTen.type='hidden'; realTen.id='xtd_real_ten'; document.body.appendChild(realTen); }
+                realTen.value = currentFilters[headers.length - 1] !== '' ? currentFilters[headers.length - 1] : '';
 
                 let realLop = document.getElementById('xtd_real_lop');
-                if(!realLop) {
-                    realLop = document.createElement('input');
-                    realLop.type = 'hidden';
-                    realLop.id = 'xtd_real_lop';
-                    document.body.appendChild(realLop);
-                }
-                
-                if (headers.length > 1) {
-                    realLop.value = currentFilters.slice(0, -1).filter(v => v).join(' - ');
-                } else {
-                    realLop.value = lopMacDinh;
-                }
+                if(!realLop) { realLop = document.createElement('input'); realLop.type='hidden'; realLop.id='xtd_real_lop'; document.body.appendChild(realLop); }
+                realLop.value = headers.length > 1 ? currentFilters.slice(0, -1).filter(v => v).join(' - ') : lopMacDinh;
             }
 
             renderSelects();
@@ -313,14 +718,9 @@ async function generateFinalFile() {
             if(timerDisplay) {
                 timerInterval = setInterval(function() {
                     if(isSubmitted) return;
-                    let m = Math.floor(timeLeft / 60);
-                    let s = timeLeft % 60;
+                    let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
                     timerDisplay.innerText = m + ':' + (s < 10 ? '0' : '') + s;
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        alert("Hết giờ! Tự động thu bài.");
-                        handleSubmit(true);
-                    }
+                    if (timeLeft <= 0) { clearInterval(timerInterval); alert("Hết giờ! Tự động thu bài."); handleSubmit(true); }
                     timeLeft--;
                 }, 1000);
             }
@@ -329,112 +729,73 @@ async function generateFinalFile() {
         function showResultAndAnswers(diemHienThi, isOffline = false) {
             const oldBanner = document.getElementById('xtd-result-banner');
             if (oldBanner) oldBanner.remove();
-
             const banner = document.createElement('div');
             banner.id = 'xtd-result-banner';
             const bgColor = isOffline ? '#fff9c4' : '#e8f5e9';
             const textColor = isOffline ? '#f57f17' : '#2e7d32';
             const borderColor = isOffline ? '#fbc02d' : '#4caf50';
             const title = isOffline ? '[OFFLINE] KẾT QUẢ BÀI LÀM' : 'BẠN ĐÃ HOÀN THÀNH BÀI KIỂM TRA!';
-            
-            banner.innerHTML = '<div style="text-align:center; background:' + bgColor + '; color:' + textColor + '; padding:20px; border-radius:8px; margin:20px 10px; border:2px solid ' + borderColor + '; font-size: 20px; font-weight: bold;">' + title + '<br><span style="font-size: 28px;">Điểm: ' + diemHienThi + '/10</span></div>';
-            
+            banner.innerHTML = '<div style="text-align:center;background:'+bgColor+';color:'+textColor+';padding:20px;border-radius:8px;margin:20px 10px;border:2px solid '+borderColor+';font-size:20px;font-weight:bold;">'+title+'<br><span style="font-size:28px;">Điểm: '+diemHienThi+'/10</span></div>';
             const topBar = document.getElementById('xtd-top-bar');
-            if(topBar) {
-                topBar.parentNode.insertBefore(banner, topBar.nextSibling);
-            } else {
-                document.body.insertBefore(banner, document.body.firstChild);
-            }
+            if(topBar) topBar.parentNode.insertBefore(banner, topBar.nextSibling);
+            else document.body.insertBefore(banner, document.body.firstChild);
 
-            const allButtons = document.querySelectorAll('button');
-            allButtons.forEach(btn => {
-                const onClickAttr = btn.getAttribute('onclick');
-                if(onClickAttr && onClickAttr.includes('handleSubmit')) {
+            document.querySelectorAll('button').forEach(btn => {
+                if(btn.getAttribute('onclick')?.includes('handleSubmit')) {
                     btn.innerHTML = isOffline ? 'ĐÃ NỘP BÀI (OFFLINE)' : 'ĐÃ NỘP BÀI';
-                    btn.style.opacity = '0.6';
-                    btn.style.cursor = 'not-allowed';
-                    btn.disabled = true;
+                    btn.style.opacity = '0.6'; btn.style.cursor = 'not-allowed'; btn.disabled = true;
                 }
             });
 
-            if (typeof window.showAnswers === "function") {
-                window.showAnswers();
-            } else {
-                console.warn("AI không cung cấp hàm showAnswers(). Không thể hiển thị giải thích.");
-            }
-
+            if (typeof window.showAnswers === "function") window.showAnswers();
+            else console.warn("AI không cung cấp hàm showAnswers().");
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // HÀM NỘP BÀI CẬP NHẬT: Đọc dữ liệu từ bộ nhớ ngầm độc lập
         function handleSubmit(isAutoSubmit = false) {
             if(isSubmitted) return;
-            
-            let hoTen = "";
-            let lop = lopMacDinh;
-            
-            if(document.getElementById('xtd_real_ten')) hoTen = document.getElementById('xtd_real_ten').value;
-            if(document.getElementById('xtd_real_lop') && document.getElementById('xtd_real_lop').value !== "") lop = document.getElementById('xtd_real_lop').value;
-            
+            let hoTen = document.getElementById('xtd_real_ten')?.value || "";
+            let lop = document.getElementById('xtd_real_lop')?.value || lopMacDinh;
+
             if(!hoTen && !isAutoSubmit) { alert("Vui lòng chọn đầy đủ thông tin Họ tên ở thanh công cụ phía trên trước khi nộp!"); return; }
             if(!hoTen && isAutoSubmit) hoTen = "Chưa chọn tên (Hết giờ)";
 
-            let unanswered = 0;
-            if (typeof window.getUnanswered === "function") {
-                unanswered = window.getUnanswered();
-            }
-
+            let unanswered = typeof window.getUnanswered === "function" ? window.getUnanswered() : 0;
             if (!isAutoSubmit && unanswered > 0) {
-                let confirmSubmit = confirm('Bạn còn ' + unanswered + ' phần chưa làm. Có nộp không?');
-                if (!confirmSubmit) return;
+                if (!confirm('Bạn còn ' + unanswered + ' phần chưa làm. Có nộp không?')) return;
             }
 
             let diemTong = 0;
-            if (typeof window.getScore === "function") {
-                diemTong = window.getScore();
-            } else {
-                alert("LỖI: Giao diện AI sinh ra thiếu hàm getScore(). Không thể tính điểm!");
-                return;
-            }
+            if (typeof window.getScore === "function") diemTong = window.getScore();
+            else { alert("LỖI: Giao diện AI sinh ra thiếu hàm getScore(). Không thể tính điểm!"); return; }
 
             isSubmitted = true;
             if(timerInterval) clearInterval(timerInterval);
-            
-            const allButtons = document.querySelectorAll('button');
-            allButtons.forEach(btn => {
-                const onClickAttr = btn.getAttribute('onclick');
-                if(onClickAttr && onClickAttr.includes('handleSubmit')) {
-                    btn.innerHTML = '⏳ ĐANG CHẤM ĐIỂM...';
-                    btn.style.opacity = '0.7';
-                    btn.style.cursor = 'wait';
-                    btn.disabled = true; 
+
+            document.querySelectorAll('button').forEach(btn => {
+                if(btn.getAttribute('onclick')?.includes('handleSubmit')) {
+                    btn.innerHTML = '⏳ ĐANG CHẤM ĐIỂM...'; btn.style.opacity='0.7'; btn.style.cursor='wait'; btn.disabled=true;
                 }
             });
 
             setTimeout(() => {
                 const diemHienThi = Math.round(diemTong * 10) / 10;
                 try {
-                    EduTech.submitResult({
-                        tenBai: testName, hoTen: hoTen, lop: lop, diemTong: diemTong
-                    }, 
-                    function() { 
-                        alert("Nộp bài thành công! Điểm của bạn: " + diemHienThi + "/10");
-                        showResultAndAnswers(diemHienThi, false);
-                    }, 
-                    function() { 
-                        alert("Lỗi đường truyền! Điểm chưa được lưu."); 
-                        isSubmitted = false;
-                        allButtons.forEach(btn => {
-                            if(btn.disabled && btn.getAttribute('onclick').includes('handleSubmit')) {
-                                btn.innerHTML = 'NỘP LẠI';
-                                btn.style.opacity = '1';
-                                btn.style.cursor = 'pointer';
-                                btn.disabled = false;
-                            }
-                        });
-                    });
+                    EduTech.submitResult(
+                        { tenBai: testName, hoTen: hoTen, lop: lop, diemTong: diemTong },
+                        function() { alert("Nộp bài thành công! Điểm của bạn: " + diemHienThi + "/10"); showResultAndAnswers(diemHienThi, false); },
+                        function() {
+                            alert("Lỗi đường truyền! Điểm chưa được lưu.");
+                            isSubmitted = false;
+                            document.querySelectorAll('button').forEach(btn => {
+                                if(btn.disabled && btn.getAttribute('onclick')?.includes('handleSubmit')) {
+                                    btn.innerHTML='NỘP LẠI'; btn.style.opacity='1'; btn.style.cursor='pointer'; btn.disabled=false;
+                                }
+                            });
+                        }
+                    );
                 } catch(e) {
-                    alert("Không có mạng hoặc lỗi Core! Hệ thống sẽ hiển thị điểm offline: " + diemHienThi + "/10");
+                    alert("Không có mạng hoặc lỗi Core! Hiển thị điểm offline: " + diemHienThi + "/10");
                     isSubmitted = true;
                     showResultAndAnswers(diemHienThi, true);
                     console.error(e);
@@ -444,17 +805,199 @@ async function generateFinalFile() {
     <\/script>
 </body>
 </html>`;
+}
 
-    const blob = new Blob([finalHTML], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `DeThi_DaNang_${Date.now()}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+// ═══════════════════════════════════════════════
+//  VALIDATE FORM
+// ═══════════════════════════════════════════════
+function validateForm(mode) {
+    const testName  = document.getElementById('testName').value.trim();
+    const timeLimit = document.getElementById('timeLimit').value.trim();
+    const sheetLink = document.getElementById('sheetLink').value.trim();
+    const customHTML = document.getElementById('customHTML').value.trim();
+
+    if (!testName || !timeLimit || !sheetLink || !customHTML) {
+        alert("Vui lòng điền đầy đủ: Tên bài, Thời gian, Link Sheet và Code HTML!");
+        return false;
+    }
+
+    if (mode === 'github') {
+        const owner = document.getElementById('ghOwner').value.trim();
+        const repo  = document.getElementById('ghRepo').value.trim();
+        const token = document.getElementById('ghToken').value.trim();
+        if (!owner || !repo || !token) {
+            alert("Để upload GitHub, vui lòng điền đủ: GitHub Username, Tên Repository và Token!");
+            return false;
+        }
+    }
+    return true;
+}
+
+// ═══════════════════════════════════════════════
+//  HÀM CHÍNH: TẠO FILE
+// ═══════════════════════════════════════════════
+async function generateFinalFile(mode) {
+    if (!validateForm(mode)) return;
+
+    const testName   = document.getElementById('testName').value.trim();
+    const className  = document.getElementById('className').value.trim();
+    const timeLimit  = document.getElementById('timeLimit').value.trim();
+    const sheetLink  = document.getElementById('sheetLink').value.trim();
+    const customHTML = document.getElementById('customHTML').value;
+
+    const btnId   = mode === 'download' ? 'btnDownload' : 'btnUpload';
+    const spinId  = mode === 'download' ? 'spinDownload' : 'spinUpload';
+    const btn     = document.getElementById(btnId);
+    const spinner = document.getElementById(spinId);
+
+    // UI: loading
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner" style="display:inline-block;"></span> ⏳ Đang lấy dữ liệu Sheet...`;
+
+    // 1. Fetch Sheet
+    let sheetData;
+    try {
+        const match = sheetLink.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if (!match) throw new Error("Link Google Sheet không đúng định dạng.");
+        sheetData = await fetchSheetDataJSONP(match[1]);
+        if (!sheetData.headers.length || !sheetData.rows.length)
+            throw new Error("File Sheet trống hoặc không nhận diện được cột dữ liệu.");
+    } catch (err) {
+        alert("LỖI ĐỌC SHEET: " + err.message);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        return;
+    }
+
+    // 2. Build HTML
+    const finalHTML = buildFinalHTML(testName, className, timeLimit, sheetData, customHTML);
+
+    // 3. Xử lý theo mode
+    if (mode === 'download') {
+        btn.innerHTML = `<span class="spinner" style="display:inline-block;"></span> ⏳ Đang tạo file...`;
+        const blob = new Blob([finalHTML], { type: "text/html;charset=utf-8" });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+        a.href = url;
+        a.download = sanitizeFileName(testName) + '.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+    } else {
+        // GITHUB UPLOAD
+        btn.innerHTML = `<span class="spinner" style="display:inline-block;"></span> ⏳ Đang upload lên GitHub...`;
+
+        const owner    = document.getElementById('ghOwner').value.trim();
+        const repo     = document.getElementById('ghRepo').value.trim();
+        const branch   = document.getElementById('ghBranch').value.trim() || 'main';
+        const token    = document.getElementById('ghToken').value.trim();
+        const fileName = sanitizeFileName(testName) + '.html';
+        const filePath = fileName; // upload thẳng vào root repo
+
+        // Lưu config
+        saveGithubConfig();
+
+        // Encode content sang Base64
+        const base64Content = btoa(unescape(encodeURIComponent(finalHTML)));
+
+        // Kiểm tra file đã tồn tại chưa (để lấy SHA nếu cần update)
+        let existingSHA = null;
+        try {
+            const checkRes = await fetch(
+                `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`,
+                { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' } }
+            );
+            if (checkRes.ok) {
+                const checkData = await checkRes.json();
+                existingSHA = checkData.sha;
+            }
+        } catch(e) { /* File chưa tồn tại, bỏ qua */ }
+
+        // Gọi GitHub API tạo/cập nhật file
+        const body = {
+            message: `Upload đề thi: ${testName}`,
+            content: base64Content,
+            branch: branch,
+        };
+        if (existingSHA) body.sha = existingSHA; // update thay vì create
+
+        let uploadRes, uploadData;
+        try {
+            uploadRes = await fetch(
+                `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body),
+                }
+            );
+            uploadData = await uploadRes.json();
+        } catch(e) {
+            alert("LỖI KẾT NỐI GitHub: " + e.message);
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            return;
+        }
+
+        if (!uploadRes.ok) {
+            const msg = uploadData.message || uploadRes.status;
+            let hint = '';
+            if (uploadRes.status === 401) hint = '\n→ Token không hợp lệ hoặc đã hết hạn.';
+            if (uploadRes.status === 403) hint = '\n→ Token thiếu quyền. Cần scope "repo".';
+            if (uploadRes.status === 404) hint = '\n→ Không tìm thấy repo. Kiểm tra lại username/repo name.';
+            alert("LỖI GITHUB API: " + msg + hint);
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            return;
+        }
+
+        // Thành công → hiển thị link GitHub Pages
+        const pagesLink = `https://${owner}.github.io/${repo}/${fileName}`;
+        const resultBox  = document.getElementById('resultBox');
+        const resultLink = document.getElementById('resultLink');
+        resultLink.textContent = pagesLink;
+        resultBox.style.display = 'block';
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Reset button
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+}
+
+// ═══════════════════════════════════════════════
+//  COPY HELPERS
+// ═══════════════════════════════════════════════
+function copyPrompt() {
+    const promptText = document.getElementById("promptText");
+    promptText.select();
+    promptText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(promptText.value).then(() => {
+        const msg = document.getElementById("copyMsg");
+        msg.style.display = "inline";
+        setTimeout(() => { msg.style.display = "none"; }, 3500);
+    });
+}
+
+function copyResultLink() {
+    const link = document.getElementById('resultLink').textContent;
+    navigator.clipboard.writeText(link).then(() => {
+        const btn = document.querySelector('.btn-copy-link');
+        const orig = btn.textContent;
+        btn.textContent = '✔ Đã copy!';
+        btn.style.background = 'var(--green-dark)';
+        setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2500);
+    });
 }
 </script>
+
 </body>
 </html>
