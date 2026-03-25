@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tỷ kiên - Kiếp tài</title>
+    <script src="https://cdn.jsdelivr.net/gh/BinhAn-devEnglish/diemtongXTD/core.js"></script>
+</head>
+<body>
+
+    <div id="xtd-top-bar" style="background:#fff; padding:15px; border-bottom:3px solid #2e7d32; display:flex; gap:15px; align-items:center; justify-content:center; flex-wrap:wrap; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin-bottom:20px;">
+        <strong style="color:#2e7d32; font-size:16px;">THÔNG TIN HỌC SINH:</strong>
+        <div id="xtd-dynamic-filters" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+    </div>
+
+    <!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bài kiểm tra Bát Tự - Tỷ Kiên & Kiếp Tài</title>
+  <style>
+    :root{
+      --bg-1:#090511;
+      --bg-2:#120a22;
+      --card:#140f25cc;
+      --card-strong:#1a1230ee;
+      --text:#f5ecff;
+      --muted:#c6b8e0;
+      --accent:#b984ff;
+      --accent-2:#7ee7ff;
+      --gold:#ffd98f;
+      --correct:#1f9d68;
+      --wrong:#d94f70;
+      --warning:#ffb85c;
+      --border:#ffffff18;
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(185,132,255,.18), transparent 20%),
+        radial-gradient(circle at 80% 10%, rgba(126,231,255,.14), transparent 18%),
+        radial-gradient(circle at 50% 80%, rgba(255,217,143,.10), transparent 20%),
+        linear-gradient(180deg, var(--bg-2), var(--bg-1));
+      min-height:100vh;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.9) 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(185,132,255,.7) 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(126,231,255,.7) 1px, transparent 1.5px);
+      background-size: 180px 180px, 230px 230px, 310px 310px;
+      background-position: 10% 20%, 70% 30%, 40% 80%;
+      opacity:.25;
+      animation: twinkle 6s linear infinite;
+    }
+
+    @keyframes twinkle{
+      0%,100%{opacity:.20}
+      50%{opacity:.35}
+    }
+
+    .wrap{
+      width:min(1100px, calc(100% - 24px));
+      margin:24px auto 40px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(135deg, rgba(185,132,255,.18), rgba(126,231,255,.08)),
+        var(--card);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:28px 22px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero::after{
+      content:"✦ ✧ ✦";
+      position:absolute;
+      right:20px;
+      top:14px;
+      color:rgba(255,255,255,.18);
+      font-size:28px;
+      letter-spacing:8px;
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(28px, 4vw, 42px);
+      line-height:1.15;
+      letter-spacing:.3px;
+      color:#fff7ff;
+      text-shadow:0 0 18px rgba(185,132,255,.22);
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.65;
+    }
+
+    .topbar{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:16px;
+      align-items:center;
+      margin:18px 0 20px;
+    }
+
+    .stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+
+    .pill{
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      color:#f9f3ff;
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+
+    #timer-display{
+      min-width:170px;
+      text-align:center;
+      background:linear-gradient(135deg, rgba(185,132,255,.22), rgba(126,231,255,.10));
+      border:1px solid rgba(255,255,255,.16);
+      color:#fff;
+      border-radius:16px;
+      padding:12px 16px;
+      font-weight:700;
+      letter-spacing:.4px;
+      box-shadow:var(--shadow);
+    }
+
+    .result-box{
+      display:none;
+      margin:18px 0 22px;
+      background:linear-gradient(135deg, rgba(126,231,255,.10), rgba(185,132,255,.13));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .result-box.show{display:block}
+
+    .result-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .result-item{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .result-item .label{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:6px;
+    }
+
+    .result-item .value{
+      font-size:24px;
+      font-weight:800;
+      color:#fff;
+    }
+
+    .quiz-list{
+      display:grid;
+      gap:18px;
+    }
+
+    .question-card{
+      position:relative;
+      background:var(--card-strong);
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:20px 18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .question-card::before{
+      content:"";
+      position:absolute;
+      inset:auto -40px -40px auto;
+      width:160px;
+      height:160px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(185,132,255,.10), transparent 65%);
+      pointer-events:none;
+    }
+
+    .q-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:10px;
+      align-items:center;
+    }
+
+    .q-no{
+      background:linear-gradient(135deg, rgba(185,132,255,.25), rgba(126,231,255,.12));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      padding:6px 12px;
+      font-weight:700;
+      color:#fff;
+      font-size:14px;
+    }
+
+    .q-tag{
+      background:rgba(255,217,143,.12);
+      border:1px solid rgba(255,217,143,.2);
+      color:var(--gold);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:13px;
+      font-weight:600;
+    }
+
+    .q-text{
+      margin:0 0 14px;
+      font-size:18px;
+      line-height:1.55;
+      color:#fff;
+    }
+
+    .options{
+      display:grid;
+      gap:10px;
+    }
+
+    .option{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      padding:13px 14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      cursor:pointer;
+      transition:.2s ease;
+      user-select:none;
+    }
+
+    .option:hover{
+      transform:translateY(-1px);
+      border-color:rgba(185,132,255,.42);
+      background:rgba(185,132,255,.08);
+    }
+
+    .option input{
+      margin-top:2px;
+      accent-color: var(--accent);
+      transform: scale(1.1);
+      cursor:pointer;
+      flex-shrink:0;
+    }
+
+    .option-letter{
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(255,255,255,.09);
+      color:#fff;
+      font-weight:800;
+      font-size:13px;
+      flex-shrink:0;
+    }
+
+    .option-text{
+      line-height:1.5;
+      color:#f4efff;
+    }
+
+    .option-correct{
+      border-color: rgba(31,157,104,.7) !important;
+      background: rgba(31,157,104,.16) !important;
+      box-shadow: inset 0 0 0 1px rgba(31,157,104,.18);
+    }
+
+    .option-correct .option-letter{
+      background: rgba(31,157,104,.28);
+    }
+
+    .option-wrong{
+      border-color: rgba(217,79,112,.72) !important;
+      background: rgba(217,79,112,.16) !important;
+      box-shadow: inset 0 0 0 1px rgba(217,79,112,.18);
+    }
+
+    .option-wrong .option-letter{
+      background: rgba(217,79,112,.28);
+    }
+
+    .option-disabled{
+      cursor:not-allowed;
+      opacity:.96;
+    }
+
+    .feedback{
+      display:none;
+      margin-top:14px;
+      padding:14px 15px;
+      border-radius:16px;
+      background:rgba(255,255,255,.05);
+      border:1px dashed rgba(255,255,255,.15);
+    }
+
+    .feedback.show{display:block}
+
+    .feedback-title{
+      font-weight:800;
+      color:#fff;
+      margin:0 0 8px;
+      font-size:15px;
+    }
+
+    .feedback p{
+      margin:0;
+      color:#e9defc;
+      line-height:1.7;
+      font-size:15px;
+    }
+
+    .question-card.state-correct{
+      border-color: rgba(31,157,104,.45);
+    }
+
+    .question-card.state-wrong{
+      border-color: rgba(217,79,112,.45);
+    }
+
+    .question-card.state-unanswered{
+      border-color: rgba(255,184,92,.45);
+    }
+
+    .actions{
+      position:sticky;
+      bottom:0;
+      z-index:10;
+      margin-top:24px;
+      padding:14px;
+      background:linear-gradient(180deg, rgba(9,5,17,.15), rgba(9,5,17,.82));
+      backdrop-filter: blur(8px);
+      border-radius:20px;
+    }
+
+    .action-inner{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      appearance:none;
+      border:none;
+      outline:none;
+      border-radius:999px;
+      padding:14px 22px;
+      min-width:220px;
+      font-weight:800;
+      font-size:15px;
+      letter-spacing:.4px;
+      cursor:pointer;
+      transition:.2s ease;
+      box-shadow: 0 14px 30px rgba(0,0,0,.28);
+    }
+
+    button:hover{transform:translateY(-2px)}
+    button:active{transform:translateY(0)}
+
+    .btn-submit{
+      background:linear-gradient(135deg, #b984ff, #7ee7ff);
+      color:#160d27;
+    }
+
+    .btn-show{
+      background:linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.08));
+      color:#fff;
+      border:1px solid rgba(255,255,255,.16);
+    }
+
+    .legend{
+      margin-top:14px;
+      color:var(--muted);
+      text-align:center;
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    @media (max-width:720px){
+      .wrap{width:min(100% - 14px, 100%)}
+      .hero{padding:22px 16px}
+      .question-card{padding:16px 14px}
+      .q-text{font-size:17px}
+      .topbar{grid-template-columns:1fr}
+      #timer-display{justify-self:start}
+      button{width:100%; min-width:unset}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>✦ BÀI KIỂM TRA KIẾN THỨC BÁT TỰ ✦</h1>
+      <p class="subtitle">
+        Hai Thập Thần: <strong>Tỷ Kiên</strong> &amp; <strong>Kiếp Tài</strong> · 20 câu trắc nghiệm · Giao diện huyền bí · Chọn 1 đáp án đúng cho mỗi câu.
+      </p>
+    </section>
+
+    <div class="topbar">
+      <div class="stats">
+        <div class="pill">🔮 Chủ đề: Huyền bí</div>
+        <div class="pill">📝 Dạng bài: Trắc nghiệm</div>
+        <div class="pill">📚 Số câu: <span id="total-count">20</span></div>
+      </div>
+      <div id="timer-display">⏳ Thời gian: 00:00</div>
+    </div>
+
+    <section id="result-box" class="result-box">
+      <div style="font-size:20px;font-weight:800;color:#fff;">Kết quả bài làm</div>
+      <div style="margin-top:6px;color:var(--muted);line-height:1.6;">
+        Bài làm đã được khóa. Đáp án đúng, phần làm sai và giải thích chi tiết đã hiển thị dưới từng câu hỏi.
+      </div>
+      <div class="result-grid">
+        <div class="result-item">
+          <div class="label">Điểm thang 10</div>
+          <div class="value" id="score-value">0.00</div>
+        </div>
+        <div class="result-item">
+          <div class="label">Số câu đúng</div>
+          <div class="value" id="correct-value">0/20</div>
+        </div>
+        <div class="result-item">
+          <div class="label">Số câu chưa làm</div>
+          <div class="value" id="unanswered-value">0</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quiz" class="quiz-list"></section>
+
+    <div class="actions">
+      <div class="action-inner">
+        <button class="btn-submit" type="button" onclick="handleSubmit()">NỘP BÀI</button>
+        <button class="btn-show" type="button" onclick="showAnswers()">XEM ĐÁP ÁN</button>
+      </div>
+      <div class="legend">
+        Khi nộp bài, hệ thống sẽ khóa làm bài, tô màu đúng/sai và hiển thị giải thích chi tiết dưới mỗi câu hỏi.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        tag: "Kiếp Tài",
+        question: "Trong bát tự, khi gặp năng lượng Kiếp Tài, bạn dễ gặp kiểu người nào trong vòng kết nối xã hội?",
+        options: [
+          "Người thầy hướng dẫn, cố vấn đáng tin",
+          "Kẻ lừa gạt trong số người quen, đối thủ cạnh tranh lợi hại",
+          "Người đem lại tài lộc bất ngờ",
+          "Người bạn đời chung thủy"
+        ],
+        answer: 1,
+        explanation: "Kiếp Tài đặc trưng bởi sự xuất hiện của kẻ tranh đoạt — không phải người lạ, mà thường ẩn nấp trong số người đã quen biết. Đây là thập thần cảnh báo về những mối quan hệ bề ngoài thân thiện nhưng tiềm ẩn ý đồ tranh giành lợi ích."
+      },
+      {
+        tag: "Tỷ Kiên",
+        question: "Năng lượng Tỷ Kiên khi Hỷ thần hỗ trợ thể hiện tính cách nổi bật nào?",
+        options: [
+          "Phụ thuộc, thiếu quyết đoán, cần người dẫn dắt",
+          "Lòng tự tôn cao, độc lập tự chủ, lạc quan tiến thủ",
+          "Thích ẩn mình, tránh va chạm",
+          "Dễ bị cảm xúc chi phối, hay khóc lóc"
+        ],
+        answer: 1,
+        explanation: "Tỷ Kiên Hỷ thần biểu hiện cho tinh thần kiên nghị, tự chủ, không khuất phục — đây là nguồn năng lượng mạnh mẽ và tích cực nhất của thập thần này. Người mang năng lượng này thường lạc quan, quả cảm nhưng không hấp tấp, giỏi ứng biến trong mọi tình huống."
+      },
+      {
+        tag: "Kiếp Tài",
+        question: "Nếu muốn luận về nguy cơ bị lừa gạt tài chính trong năm, bạn nên xem thập thần nào?",
+        options: [
+          "Chính Quan",
+          "Thiên Tài",
+          "Kiếp Tài",
+          "Thực Thần"
+        ],
+        answer: 2,
+        explanation: "Kiếp Tài chủ về sự tranh đoạt, lừa gạt, mất mát tài chính từ người xung quanh — đây là thập thần cần xem khi lo ngại rủi ro tiền bạc do người khác gây ra. Biểu hiện điển hình bao gồm: góp vốn rồi mất tiền, vay không trả, bị tống tiền hay hợp tác lừa gạt."
+      },
+      {
+        tag: "Tỷ Kiên",
+        question: "Khi Tỷ Kiên gặp Kỵ thần, điểm mạnh 'tự tôn cao' bị méo mó thành điều gì?",
+        options: [
+          "Trở nên quá khiêm tốn, không dám thể hiện",
+          "Bảo thủ, tự cho mình luôn đúng, không coi ai ra gì",
+          "Hay dao động, thiếu lập trường",
+          "Trở nên cô đơn, sống khép kín"
+        ],
+        answer: 1,
+        explanation: "Kỵ thần khuếch đại điểm mạnh thành cực đoan: Tự tôn cao → bảo thủ; Độc lập → không coi ai ra gì; Kiên định → kiềm chế kém, dễ bùng nổ; Quả cảm → thô lỗ, thiếu lịch sự. Đây là quy luật chuyển hóa của Tỷ Kiên khi mất cân bằng năng lượng."
+      },
+      {
+        tag: "Kiếp Tài",
+        question: "Trong môi trường công việc, Kiếp Tài biểu hiện hành vi tập thể nào nguy hiểm nhất?",
+        options: [
+          "Cả nhóm cùng nghỉ phép đúng lịch",
+          "Bãi công tập thể, kéo bè kết phái, hủy hoại ác ý",
+          "Cùng nhau tăng ca không lương",
+          "Tự nguyện đóng góp quỹ công ty"
+        ],
+        answer: 1,
+        explanation: "Kiếp Tài trong công việc biểu trưng cho sự tranh giành, phân hóa — dễ tạo ra xung đột tập thể, bãi công, chia phe và hành động phá hoại ngầm. Đây là thập thần cần đặc biệt chú ý trong môi trường tổ chức nhiều mâu thuẫn nội bộ."
+      },
+      {
+        tag: "Tỷ Kiên",
+        question: "Nếu muốn luận về chất lượng mối quan hệ bạn bè đồng trang lứa trong năm, xem thập thần nào?",
+        options: [
+          "Thiên Ấn",
+          "Tỷ Kiên",
+          "Chính Tài",
+          "Thương Quan"
+        ],
+        answer: 1,
+        explanation: "Tỷ Kiên chủ về những người cùng vị thế, cùng hoàn cảnh — bạn bè đồng niên, đồng nghiệp cùng cấp, người cùng câu lạc bộ, đồng hương. Đây là thập thần để luận về mạng lưới quan hệ ngang hàng, cùng địa vị xã hội."
+      },
+      {
+        tag: "Kiếp Tài",
+        question: "Người thứ ba trong tình cảm thuộc phạm trù nào trong hai thập thần này?",
+        options: [
+          "Tỷ Kiên",
+          "Kiếp Tài",
+          "Cả hai đều không liên quan",
+          "Tùy giới tính của người thứ ba"
+        ],
+        answer: 1,
+        explanation: "Kiếp Tài đặc trưng cho sự xâm lấn, tranh đoạt — người thứ ba là hình ảnh điển hình của Kiếp Tài trong tình cảm vì họ tranh giành đối tượng tình cảm của bạn. Đây là một trong những biểu hiện nguy hiểm nhất của Kiếp Tài trong lĩnh vực hôn nhân."
+      },
+      {
+        tag: "Tỷ Kiên",
+        question: "Khi Tỷ Kiên Kỵ thần, tình huống tài chính nào dễ xảy ra nhất?",
+        options: [
+          "Nhận thừa kế bất ngờ",
+          "Tiêu xài vô độ, đầu cơ thiếu kiểm soát, tham lớn mà nhanh",
+          "Tiết kiệm được nhiều hơn bình thường",
+          "Được thưởng hiệu suất cao"
+        ],
+        answer: 1,
+        explanation: "Tỷ Kiên Kỵ làm mất đi sự kiểm soát tài chính — năng lượng mạnh mẽ bị hướng sai thành tiêu xài bốc đồng, đầu cơ theo cảm tính và tâm lý 'giàu nhanh'. Thực tế thường gặp: dừng lương, tiêu tiền không kế hoạch, khó đòi nợ."
+      },
+      {
+        tag: "Kiếp Tài",
+        question: "Hành động nào KHÔNG phải đặc trưng của Kiếp Tài trong giao tiếp và hành xử?",
+        options: [
+          "Thích dùng vũ lực để giải quyết vấn đề",
+          "Làm rối rắm rồi mới nói",
+          "Ăn nói khéo léo, nhã nhặn, kiên nhẫn lắng nghe",
+          "Công kích mãnh liệt, chiếm hữu mạnh mẽ"
+        ],
+        answer: 2,
+        explanation: "Kiếp Tài mang năng lượng hung hăng, tranh đoạt. Nhã nhặn và kiên nhẫn lắng nghe là đặc trưng của Chính Quan hoặc Ấn Tinh — không phải Kiếp Tài. Kiếp Tài thường hành sự bằng vũ lực, áp đặt và công kích trực diện."
+      },
+      {
+        tag: "Tỷ Kiên",
+        question: "Trong học tập, rủi ro lớn nhất khi Tỷ Kiên gặp Kỵ thần là gì?",
+        options: [
+          "Học quá nhiều dẫn đến kiệt sức",
+          "Đình chỉ học, bỏ học giữa chừng do quyết định bốc đồng",
+          "Bị thầy cô ghét vì quá giỏi",
+          "Thi đỗ nhưng không nhận học bổng"
+        ],
+        answer: 1,
+        explanation: "Tỷ Kiên Kỵ khiến người ta hành động thiếu suy nghĩ — quyết định bỏ học, đổi ngành, trốn tránh trách nhiệm học tập là biểu hiện điển hình. Đặc biệt với sinh viên, đây là giai đoạn dễ có quyết định bốc đồng liên quan đến con đường học vấn."
+      },
+      {
+        tag: "Cả hai",
+        question: "Điểm khác biệt cốt lõi giữa Tỷ Kiên và Kiếp Tài là gì?",
+        options: [
+          "Tỷ Kiên thuộc hành Thổ, Kiếp Tài thuộc hành Kim",
+          "Tỷ Kiên mang tính cạnh tranh lành mạnh, công bằng; Kiếp Tài mang tính tranh đoạt, xâm lấn và lừa dối",
+          "Tỷ Kiên chỉ xuất hiện ở nam, Kiếp Tài chỉ xuất hiện ở nữ",
+          "Hai thập thần này hoàn toàn giống nhau"
+        ],
+        answer: 1,
+        explanation: "Cả hai đều thuộc nhóm Tỷ Kiếp (cùng hành với nhật nguyên chủ) nhưng Tỷ Kiên âm dương giống nhật nguyên — lành mạnh hơn, cạnh tranh công bằng; còn Kiếp Tài âm dương khác — mang tính tranh đoạt nguy hiểm hơn, thường liên quan đến lừa gạt và mất mát."
+      },
+      {
+        tag: "Kiếp Tài",
+        question: "Với Nam giới, Kiếp Tài đặc biệt ảnh hưởng đến mối quan hệ với người thân nào?",
+        options: [
+          "Bố mẹ ruột",
+          "Chị hoặc em gái, con dâu",
+          "Ông bà nội",
+          "Con trai cả"
+        ],
+        answer: 1,
+        explanation: "Trong hệ thống lục thân bát tự, Kiếp Tài với Nam giới biểu trưng cho chị/em gái và con dâu — đây là những mối quan hệ dễ có xung đột hoặc hiểu lầm trong năm Kiếp Tài mạnh, thường liên quan đến tài chính hoặc tranh chấp quyền lợi gia đình."
+      },
+      {
+        tag: "Tỷ Kiên",
+        question: "Nếu muốn luận về khả năng xảy ra đình công hoặc phản loạn tập thể trong tổ chức, xem thập thần nào?",
+        options: [
+          "Kiếp Tài",
+          "Tỷ Kiên",
+          "Chính Quan",
+          "Thiên Quan"
+        ],
+        answer: 1,
+        explanation: "Tỷ Kiên chủ về nhóm đồng đẳng, tập thể ngang hàng — khi Kỵ thần, năng lượng này biến thành đình công, bãi công, cùng nhau chống đối. Đây là thập thần để đọc về hành động tập thể, phong trào phản kháng trong tổ chức."
+      },
+      {
+        tag: "Kiếp Tài",
+        question: "Tâm lý đặc trưng của Kiếp Tài là gì trong ứng xử xã hội?",
+        options: [
+          "Lạnh nhạt với tất cả mọi người như nhau",
+          "Lạnh nhạt với người thân, hào phóng nhiệt tình với người ngoài",
+          "Nhiệt tình với tất cả, không phân biệt",
+          "Thu mình, ít giao tiếp, ngại đám đông"
+        ],
+        answer: 1,
+        explanation: "Đây là nghịch lý cảm xúc đặc trưng của Kiếp Tài — năng lượng bị hướng ra ngoài, khiến người thân bị bỏ quên trong khi người lạ lại được đối xử nồng hậu. Điều này thường gây tổn thương sâu cho người thân và là dấu hiệu cần điều chỉnh tâm lý."
+      },
+      {
+        tag: "Tỷ Kiên",
+        question: "Khi Tỷ Kiên Kỵ thần, vấn đề nào dễ xảy ra trong tình yêu?",
+        options: [
+          "Tìm được người bạn đời lý tưởng",
+          "Thất tình, chia tay do cái tôi hai bên quá lớn, người thứ ba xuất hiện",
+          "Hôn nhân thuận lợi, ổn định",
+          "Tái hợp với người cũ"
+        ],
+        answer: 1,
+        explanation: "Tỷ Kiên mang cái tôi mạnh — khi hai người đều có năng lượng này và Kỵ thần tác động, dễ không ai chịu nhường ai, tích lũy va chạm dẫn đến đổ vỡ. Người thứ ba cũng là rủi ro trong giai đoạn này vì cả hai đều bị năng lượng xung đột bên ngoài tác động."
+      },
+      {
+        tag: "Cả hai",
+        question: "Nếu muốn luận về nguy cơ mất đồ vật có giá trị trong năm, xem thập thần nào?",
+        options: [
+          "Chỉ cần xem Chính Tài",
+          "Kiếp Tài và Tỷ Kiên đều có dấu hiệu mất mát, nhưng nguyên nhân khác nhau",
+          "Chỉ cần xem Thực Thần",
+          "Chỉ cần xem Chính Ấn"
+        ],
+        answer: 1,
+        explanation: "Kiếp Tài dẫn đến mất đồ do trộm cắp, lừa gạt, thất lạc đồ vật có giá trị; trong khi Tỷ Kiên Kỵ dẫn đến mất đồ do bất cẩn khi tâm trạng bất ổn. Cả hai cần được xem song song để đánh giá toàn diện nguy cơ mất mát tài sản."
+      },
+      {
+        tag: "Kiếp Tài",
+        question: "Kiếp Tài trong công việc mang lại CƠ HỘI gì tích cực?",
+        options: [
+          "Thăng chức nhanh, không cần nỗ lực",
+          "Cơ hội hợp tác, kết nối, tiệc tùng và hoạt động xã hội sôi nổi",
+          "Được tăng lương tự động theo thâm niên",
+          "Giảm áp lực công việc, ít trách nhiệm hơn"
+        ],
+        answer: 1,
+        explanation: "Kiếp Tài không chỉ mang rủi ro — năng lượng xã hội của nó cũng tạo ra môi trường kết nối sôi động. Biết tận dụng các buổi networking, sự kiện xã hội, tiệc tùng là cách biến Kiếp Tài thành lợi thế để mở rộng mạng lưới và tạo cơ hội hợp tác mới."
+      },
+      {
+        tag: "Tỷ Kiên",
+        question: "Với Nữ giới, Tỷ Kiên ảnh hưởng đến mối quan hệ với người thân nào đặc biệt nhất?",
+        options: [
+          "Mẹ ruột và bà ngoại",
+          "Chị hoặc em gái",
+          "Con gái cả",
+          "Chồng"
+        ],
+        answer: 1,
+        explanation: "Tỷ Kiên với Nữ giới biểu trưng cho chị/em gái — những người cùng giới, cùng vị thế trong gia đình. Đây là mối quan hệ dễ phát sinh cạnh tranh ngầm, hiểu lầm tích lũy, đặc biệt liên quan đến chuyện tiền bạc, tình cảm hoặc địa vị trong gia đình."
+      },
+      {
+        tag: "Cả hai",
+        question: "Điểm GIỐNG NHAU giữa Kiếp Tài và Tỷ Kiên là gì?",
+        options: [
+          "Cả hai đều chủ về tài lộc và sự thịnh vượng",
+          "Cả hai đều thuộc nhóm thập thần đồng hành — cùng hành với nhật nguyên, biểu trưng cho người cùng vị thế",
+          "Cả hai đều mang ý nghĩa hoàn toàn tiêu cực",
+          "Cả hai đều liên quan đến hôn nhân và tình duyên"
+        ],
+        answer: 1,
+        explanation: "Tỷ Kiên và Kiếp Tài đều thuộc nhóm 'Tỷ Kiếp' — tức cùng hành với nhật nguyên chủ, biểu trưng cho những người ngang hàng, cùng cạnh tranh. Sự khác biệt nằm ở tính chất âm dương: Tỷ Kiên cùng âm dương với nhật nguyên (lành mạnh hơn), Kiếp Tài khác âm dương (nguy hiểm hơn)."
+      },
+      {
+        tag: "Cả hai",
+        question: "Một lãnh đạo doanh nghiệp muốn dự báo khả năng xảy ra xung đột nội bộ và đối tác không trung thực trong cùng một năm, nên luận cả hai thập thần nào?",
+        options: [
+          "Chính Quan và Thiên Quan",
+          "Tỷ Kiên và Kiếp Tài",
+          "Thực Thần và Thương Quan",
+          "Chính Tài và Thiên Tài"
+        ],
+        answer: 1,
+        explanation: "Tỷ Kiên phản ánh xung đột nội bộ (nhân viên, đồng cấp, tập thể phản kháng), còn Kiếp Tài phản ánh đối tác không trung thực, lừa gạt từ bên ngoài. Hai thập thần này cần đọc song song để có bức tranh toàn diện về rủi ro con người trong năm."
+      }
+    ];
+
+    const letters = ["A", "B", "C", "D"];
+    const quizEl = document.getElementById("quiz");
+    const totalCountEl = document.getElementById("total-count");
+    const resultBox = document.getElementById("result-box");
+    const scoreValue = document.getElementById("score-value");
+    const correctValue = document.getElementById("correct-value");
+    const unansweredValue = document.getElementById("unanswered-value");
+    const timerDisplay = document.getElementById("timer-display");
+
+    let hasReviewed = false;
+    let startTime = Date.now();
+
+    totalCountEl.textContent = quizData.length;
+
+    function renderQuiz() {
+      const frag = document.createDocumentFragment();
+
+      quizData.forEach((item, index) => {
+        const card = document.createElement("article");
+        card.className = "question-card";
+        card.dataset.index = index;
+
+        const meta = document.createElement("div");
+        meta.className = "q-meta";
+
+        const qNo = document.createElement("div");
+        qNo.className = "q-no";
+        qNo.textContent = "Câu " + (index + 1);
+
+        const qTag = document.createElement("div");
+        qTag.className = "q-tag";
+        qTag.textContent = item.tag;
+
+        meta.appendChild(qNo);
+        meta.appendChild(qTag);
+
+        const qText = document.createElement("p");
+        qText.className = "q-text";
+        qText.textContent = item.question;
+
+        const options = document.createElement("div");
+        options.className = "options";
+
+        item.options.forEach((opt, optIndex) => {
+          const label = document.createElement("label");
+          label.className = "option";
+          label.dataset.optionIndex = optIndex;
+
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = "q_" + index;
+          input.value = String(optIndex);
+          input.setAttribute("aria-label", "Câu " + (index + 1) + " đáp án " + letters[optIndex]);
+
+          const letter = document.createElement("span");
+          letter.className = "option-letter";
+          letter.textContent = letters[optIndex];
+
+          const text = document.createElement("div");
+          text.className = "option-text";
+          text.textContent = opt;
+
+          label.appendChild(input);
+          label.appendChild(letter);
+          label.appendChild(text);
+          options.appendChild(label);
+        });
+
+        const feedback = document.createElement("div");
+        feedback.className = "feedback";
+        feedback.innerHTML = `
+          <div class="feedback-title">Đáp án đúng: ${letters[item.answer]}. ${escapeHtml(item.options[item.answer])}</div>
+          <p>${escapeHtml(item.explanation)}</p>
+        `;
+
+        card.appendChild(meta);
+        card.appendChild(qText);
+        card.appendChild(options);
+        card.appendChild(feedback);
+        frag.appendChild(card);
+      });
+
+      quizEl.appendChild(frag);
+    }
+
+    function escapeHtml(text) {
+      const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      };
+      return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function getSelectedIndex(questionIndex) {
+      const selected = document.querySelector(`input[name="q_${questionIndex}"]:checked`);
+      return selected ? Number(selected.value) : -1;
+    }
+
+    function countCorrectAnswers() {
+      let correct = 0;
+      quizData.forEach((item, i) => {
+        if (getSelectedIndex(i) === item.answer) correct++;
+      });
+      return correct;
+    }
+
+    function formatScore(score) {
+      return Math.round(score * 100) / 100;
+    }
+
+    function updateTimer() {
+      const elapsedMs = Date.now() - startTime;
+      const totalSeconds = Math.floor(elapsedMs / 1000);
+      const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+      const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+      timerDisplay.textContent = "⏳ Thời gian: " + minutes + ":" + seconds;
+    }
+
+    function lockInputs() {
+      document.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.disabled = true;
+      });
+      document.querySelectorAll(".option").forEach(opt => {
+        opt.classList.add("option-disabled");
+      });
+    }
+
+    function paintAnswers() {
+      quizData.forEach((item, index) => {
+        const card = document.querySelector(`.question-card[data-index="${index}"]`);
+        const selectedIndex = getSelectedIndex(index);
+        const labels = card.querySelectorAll(".option");
+        const feedback = card.querySelector(".feedback");
+
+        labels.forEach((label, optIndex) => {
+          label.classList.remove("option-correct", "option-wrong");
+          if (optIndex === item.answer) {
+            label.classList.add("option-correct");
+          }
+          if (selectedIndex === optIndex && selectedIndex !== item.answer) {
+            label.classList.add("option-wrong");
+          }
+        });
+
+        card.classList.remove("state-correct", "state-wrong", "state-unanswered");
+        if (selectedIndex === -1) {
+          card.classList.add("state-unanswered");
+        } else if (selectedIndex === item.answer) {
+          card.classList.add("state-correct");
+        } else {
+          card.classList.add("state-wrong");
+        }
+
+        feedback.classList.add("show");
+      });
+    }
+
+    function showResultSummary() {
+      const correct = countCorrectAnswers();
+      const unanswered = getUnanswered();
+      const score = getScore();
+
+      scoreValue.textContent = score.toFixed(2);
+      correctValue.textContent = `${correct}/${quizData.length}`;
+      unansweredValue.textContent = unanswered;
+      resultBox.classList.add("show");
+      resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function handleSubmit() {
+      showAnswers();
+      showResultSummary();
+    }
+
+    function getUnanswered() {
+      let unanswered = 0;
+      quizData.forEach((_, i) => {
+        if (getSelectedIndex(i) === -1) unanswered++;
+      });
+      return unanswered;
+    }
+
+    function getScore() {
+      const correct = countCorrectAnswers();
+      return formatScore((correct / quizData.length) * 10);
+    }
+
+    function showAnswers() {
+      if (!hasReviewed) {
+        hasReviewed = true;
+        lockInputs();
+        paintAnswers();
+      } else {
+        document.querySelectorAll(".feedback").forEach(el => el.classList.add("show"));
+      }
+      showResultSummary();
+    }
+
+    window.getUnanswered = getUnanswered;
+    window.getScore = getScore;
+    window.showAnswers = showAnswers;
+    window.handleSubmit = handleSubmit;
+
+    renderQuiz();
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>
+
+    <script>
+        const sheetData = {"headers":["",""],"rows":[["Nhóm","Tên"],["BT","Thinh"],["BT","Vân"],["BT","Hoa"],["BT","Ninh"]]};
+        const testName = "Tỷ kiên - Kiếp tài";
+        let lopMacDinh = "";
+        let timeLeft = 15 * 60;
+        let timerInterval;
+        let isSubmitted = false;
+
+        window.onload = function() {
+            initDynamicFilters();
+            initTimer();
+            hideAIInputs();
+        };
+
+        function hideAIInputs() {
+            const aiLop = document.getElementById('id_input_lop');
+            const aiTen = document.getElementById('id_input_ten');
+            if(aiLop) { if(aiLop.previousElementSibling?.tagName==='LABEL') aiLop.previousElementSibling.remove(); aiLop.remove(); }
+            if(aiTen) { if(aiTen.previousElementSibling?.tagName==='LABEL') aiTen.previousElementSibling.remove(); aiTen.remove(); }
+        }
+
+        function initDynamicFilters() {
+            const container = document.getElementById('xtd-dynamic-filters');
+            const headers = sheetData.headers;
+            const rows = sheetData.rows;
+            let currentFilters = new Array(headers.length).fill('');
+
+            function renderSelects() {
+                container.innerHTML = '';
+                headers.forEach((header, colIndex) => {
+                    const select = document.createElement('select');
+                    select.style.cssText = 'padding:8px; border-radius:4px; border:1px solid #ccc; min-width:150px;';
+                    select.innerHTML = '<option value="">-- Chọn ' + (header || 'Cột ' + (colIndex+1)) + ' --</option>';
+
+                    let validRows = rows.filter(row => {
+                        for(let i = 0; i < colIndex; i++) {
+                            if(currentFilters[i] && row[i] !== currentFilters[i]) return false;
+                        }
+                        return true;
+                    });
+
+                    [...new Set(validRows.map(row => row[colIndex]))].filter(v => v).forEach(val => {
+                        const opt = document.createElement('option');
+                        opt.value = val; opt.innerText = val;
+                        if(currentFilters[colIndex] === val) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+
+                    select.onchange = (e) => {
+                        currentFilters[colIndex] = e.target.value;
+                        for(let i = colIndex + 1; i < headers.length; i++) currentFilters[i] = '';
+                        renderSelects();
+                        syncHiddenValues();
+                    };
+                    container.appendChild(select);
+                });
+            }
+
+            function syncHiddenValues() {
+                let realTen = document.getElementById('xtd_real_ten');
+                if(!realTen) { realTen = document.createElement('input'); realTen.type='hidden'; realTen.id='xtd_real_ten'; document.body.appendChild(realTen); }
+                realTen.value = currentFilters[headers.length - 1] !== '' ? currentFilters[headers.length - 1] : '';
+
+                let realLop = document.getElementById('xtd_real_lop');
+                if(!realLop) { realLop = document.createElement('input'); realLop.type='hidden'; realLop.id='xtd_real_lop'; document.body.appendChild(realLop); }
+                realLop.value = headers.length > 1 ? currentFilters.slice(0, -1).filter(v => v).join(' - ') : lopMacDinh;
+            }
+
+            renderSelects();
+            syncHiddenValues();
+        }
+
+        function initTimer() {
+            const timerDisplay = document.getElementById('timer-display');
+            if(timerDisplay) {
+                timerInterval = setInterval(function() {
+                    if(isSubmitted) return;
+                    let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+                    timerDisplay.innerText = m + ':' + (s < 10 ? '0' : '') + s;
+                    if (timeLeft <= 0) { clearInterval(timerInterval); alert("Hết giờ! Tự động thu bài."); handleSubmit(true); }
+                    timeLeft--;
+                }, 1000);
+            }
+        }
+
+        function showResultAndAnswers(diemHienThi, isOffline = false) {
+            const oldBanner = document.getElementById('xtd-result-banner');
+            if (oldBanner) oldBanner.remove();
+            const banner = document.createElement('div');
+            banner.id = 'xtd-result-banner';
+            const bgColor = isOffline ? '#fff9c4' : '#e8f5e9';
+            const textColor = isOffline ? '#f57f17' : '#2e7d32';
+            const borderColor = isOffline ? '#fbc02d' : '#4caf50';
+            const title = isOffline ? '[OFFLINE] KẾT QUẢ BÀI LÀM' : 'BẠN ĐÃ HOÀN THÀNH BÀI KIỂM TRA!';
+            banner.innerHTML = '<div style="text-align:center;background:'+bgColor+';color:'+textColor+';padding:20px;border-radius:8px;margin:20px 10px;border:2px solid '+borderColor+';font-size:20px;font-weight:bold;">'+title+'<br><span style="font-size:28px;">Điểm: '+diemHienThi+'/10</span></div>';
+            const topBar = document.getElementById('xtd-top-bar');
+            if(topBar) topBar.parentNode.insertBefore(banner, topBar.nextSibling);
+            else document.body.insertBefore(banner, document.body.firstChild);
+
+            document.querySelectorAll('button').forEach(btn => {
+                if(btn.getAttribute('onclick')?.includes('handleSubmit')) {
+                    btn.innerHTML = isOffline ? 'ĐÃ NỘP BÀI (OFFLINE)' : 'ĐÃ NỘP BÀI';
+                    btn.style.opacity = '0.6'; btn.style.cursor = 'not-allowed'; btn.disabled = true;
+                }
+            });
+
+            if (typeof window.showAnswers === "function") window.showAnswers();
+            else console.warn("AI không cung cấp hàm showAnswers().");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleSubmit(isAutoSubmit = false) {
+            if(isSubmitted) return;
+            let hoTen = document.getElementById('xtd_real_ten')?.value || "";
+            let lop = document.getElementById('xtd_real_lop')?.value || lopMacDinh;
+
+            if(!hoTen && !isAutoSubmit) { alert("Vui lòng chọn đầy đủ thông tin Họ tên ở thanh công cụ phía trên trước khi nộp!"); return; }
+            if(!hoTen && isAutoSubmit) hoTen = "Chưa chọn tên (Hết giờ)";
+
+            let unanswered = typeof window.getUnanswered === "function" ? window.getUnanswered() : 0;
+            if (!isAutoSubmit && unanswered > 0) {
+                if (!confirm('Bạn còn ' + unanswered + ' phần chưa làm. Có nộp không?')) return;
+            }
+
+            let diemTong = 0;
+            if (typeof window.getScore === "function") diemTong = window.getScore();
+            else { alert("LỖI: Giao diện AI sinh ra thiếu hàm getScore(). Không thể tính điểm!"); return; }
+
+            isSubmitted = true;
+            if(timerInterval) clearInterval(timerInterval);
+
+            document.querySelectorAll('button').forEach(btn => {
+                if(btn.getAttribute('onclick')?.includes('handleSubmit')) {
+                    btn.innerHTML = '⏳ ĐANG CHẤM ĐIỂM...'; btn.style.opacity='0.7'; btn.style.cursor='wait'; btn.disabled=true;
+                }
+            });
+
+            setTimeout(() => {
+                const diemHienThi = Math.round(diemTong * 10) / 10;
+                try {
+                    EduTech.submitResult(
+                        { tenBai: testName, hoTen: hoTen, lop: lop, diemTong: diemTong },
+                        function() { alert("Nộp bài thành công! Điểm của bạn: " + diemHienThi + "/10"); showResultAndAnswers(diemHienThi, false); },
+                        function() {
+                            alert("Lỗi đường truyền! Điểm chưa được lưu.");
+                            isSubmitted = false;
+                            document.querySelectorAll('button').forEach(btn => {
+                                if(btn.disabled && btn.getAttribute('onclick')?.includes('handleSubmit')) {
+                                    btn.innerHTML='NỘP LẠI'; btn.style.opacity='1'; btn.style.cursor='pointer'; btn.disabled=false;
+                                }
+                            });
+                        }
+                    );
+                } catch(e) {
+                    alert("Không có mạng hoặc lỗi Core! Hiển thị điểm offline: " + diemHienThi + "/10");
+                    isSubmitted = true;
+                    showResultAndAnswers(diemHienThi, true);
+                    console.error(e);
+                }
+            }, 800);
+        }
+    </script>
+</body>
+</html>
