@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiểm tra ứng dụng AI</title>
+    <script src="https://cdn.jsdelivr.net/gh/BinhAn-devEnglish/diemtongXTD/core.js"></script>
+</head>
+<body>
+
+    <div id="xtd-top-bar" style="background:#fff; padding:15px; border-bottom:3px solid #2e7d32; display:flex; gap:15px; align-items:center; justify-content:center; flex-wrap:wrap; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin-bottom:20px;">
+        <strong style="color:#2e7d32; font-size:16px;">THÔNG TIN HỌC SINH:</strong>
+        <div id="xtd-dynamic-filters" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+    </div>
+
+    <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc nghiệm AI: Vui nhộn & Sáng tạo</title>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --accent: #ffe66d;
+            --bg: #f7fff7;
+            --text: #2c3e50;
+            --correct-bg: #d4edda;
+            --correct-border: #28a745;
+            --wrong-bg: #f8d7da;
+            --wrong-border: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(var(--accent) 10%, transparent 10%), radial-gradient(var(--accent) 10%, transparent 10%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .main-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border: 4px solid var(--secondary);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5em;
+            text-shadow: 2px 2px 0px var(--accent);
+            margin-bottom: 15px;
+        }
+
+        #timer-display {
+            display: inline-block;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+            background: var(--primary);
+            padding: 10px 25px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            border: 3px dashed #fff;
+            margin-bottom: 20px;
+        }
+
+        .q-block {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+            border: 2px solid #eef2f5;
+            transition: transform 0.3s ease;
+        }
+
+        .q-block:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+        }
+
+        .q-title {
+            font-size: 1.25em;
+            font-weight: 700;
+            color: #1a535c;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: flex-start;
+            font-size: 1.05em;
+        }
+
+        .option:hover {
+            background: #e0fbfc;
+            border-color: var(--secondary);
+            transform: scale(1.01);
+        }
+
+        .option input[type="radio"] {
+            margin-top: 5px;
+            margin-right: 15px;
+            transform: scale(1.4);
+            cursor: pointer;
+            accent-color: var(--secondary);
+        }
+
+        .option.selected {
+            background: #e0fbfc;
+            border-color: var(--secondary);
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(78, 205, 196, 0.2);
+        }
+
+        .option.correct {
+            background: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option.wrong {
+            background: var(--wrong-bg) !important;
+            border-color: var(--wrong-border) !important;
+            color: #721c24;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff3cd;
+            border-left: 6px solid #ffc107;
+            border-radius: 10px;
+            font-size: 1em;
+            color: #856404;
+            line-height: 1.6;
+            animation: fadeIn 0.5s;
+        }
+
+        .explanation b {
+            color: #d39e00;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-bottom: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--secondary), #29b6f6);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #028090, 0 15px 20px rgba(0,0,0,0.2);
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        button:active {
+            transform: translateY(8px);
+            box-shadow: 0 0 0 #028090, 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            background: #adb5bd;
+            box-shadow: 0 8px 0 #6c757d;
+            cursor: not-allowed;
+            transform: translateY(8px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <div class="header">
+            <h1>🚀 Tư Duy Sử Dụng AI 🧠</h1>
+            <div id="timer-display"></div>
+            <p>Hãy chọn đáp án đúng nhất cho các câu hỏi dưới đây nhé!</p>
+        </div>
+
+        <div id="quiz-container"></div>
+
+        <div class="footer">
+            <button type="button" onclick="handleSubmit()">NỘP BÀI</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                q: "Câu 1: Thông điệp cốt lõi của ý “Đầu vào quyết định đầu ra” khi sử dụng AI là gì?",
+                opts: [
+                    "A. Chỉ cần dùng đúng công cụ AI nổi tiếng là sẽ có kết quả tốt",
+                    "B. Chỉ cần hỏi ngắn gọn, AI sẽ tự hiểu đầy đủ",
+                    "C. Chất lượng prompt ảnh hưởng trực tiếp đến chất lượng kết quả AI trả về",
+                    "D. AI luôn cho ra câu trả lời chính xác dù người dùng hỏi thế nào"
+                ],
+                ans: 2,
+                exp: "Đây là tư duy nền tảng nhất khi dùng AI. AI phản hồi dựa trên thông tin, yêu cầu, ngữ cảnh và cách diễn đạt mà người dùng cung cấp. Nếu prompt mơ hồ, thiếu mục tiêu, thiếu tiêu chí, kết quả thường chung chung hoặc sai trọng tâm. Với giáo viên, điều này đặc biệt quan trọng vì cùng một nội dung bài học, cách đặt prompt tốt sẽ giúp AI tạo ra giáo án, câu hỏi, rubric hay hoạt động phù hợp hơn rất nhiều."
+            },
+            {
+                q: "Câu 2: Câu nào dưới đây thể hiện đúng nhất mối quan hệ giữa prompt tốt và kết quả tốt?",
+                opts: [
+                    "A. Prompt càng dài thì kết quả chắc chắn càng tốt",
+                    "B. Prompt tốt là prompt làm rõ mục tiêu, đối tượng, yêu cầu và cách thực hiện",
+                    "C. Prompt tốt là prompt sử dụng thật nhiều thuật ngữ chuyên môn",
+                    "D. Prompt tốt là prompt khiến AI trả lời càng nhanh càng tốt"
+                ],
+                ans: 1,
+                exp: "Một prompt tốt không phải là prompt dài nhất, mà là prompt rõ nhất. Nó cần cho AI biết: làm việc gì, cho ai, theo tiêu chuẩn nào, trình bày ra sao, cần tránh điều gì. Giáo viên khi dùng AI để hỗ trợ dạy học cần đặc biệt chú ý đến 4 điểm: mục tiêu bài học, đối tượng học sinh, mức độ phù hợp và định dạng đầu ra. Đó mới là yếu tố quyết định chất lượng."
+            },
+            {
+                q: "Câu 3: Trong 3 mức sử dụng AI: Công cụ – Trợ lý – Đồng hành tư duy, mức độ nào cho thấy người dùng đã khai thác AI ở chiều sâu hơn?",
+                opts: [
+                    "A. Chỉ yêu cầu AI làm thay một việc đơn lẻ",
+                    "B. Dùng AI để trang trí bài giảng cho đẹp",
+                    "C. Dùng AI để cùng phân tích, phản biện, gợi mở và hoàn thiện tư duy của mình",
+                    "D. Dùng AI để chép lại nội dung từ tài liệu cũ"
+                ],
+                ans: 2,
+                exp: "Ở mức “công cụ”, AI chỉ là thứ để thực hiện một tác vụ. Ở mức “trợ lý”, AI hỗ trợ xử lý nhiều việc hơn, có tổ chức hơn. Nhưng ở mức “đồng hành tư duy”, AI không chỉ làm giúp mà còn cùng giáo viên suy nghĩ, đặt câu hỏi ngược lại, gợi ý phương án, phản biện lỗ hổng, đề xuất cải tiến. Đây là cấp độ sử dụng AI rất đáng hướng tới trong giáo dục vì nó giúp giáo viên nâng chất lượng chuyên môn chứ không chỉ tiết kiệm thời gian."
+            },
+            {
+                q: "Câu 4: Ví dụ nào dưới đây thể hiện AI đang được dùng ở mức công cụ?",
+                opts: [
+                    "A. “Hãy phản biện giúp tôi 3 điểm yếu của kế hoạch dạy học này.”",
+                    "B. “Hãy đóng vai cố vấn chuyên môn, cùng tôi chỉnh sửa kế hoạch bài dạy theo từng bước.”",
+                    "C. “Hãy gợi ý cho tôi 5 tiêu đề hấp dẫn cho bài viết này.”",
+                    "D. “Hãy phân tích vì sao học sinh lớp 5 dễ chán hoạt động này và đề xuất cách cải tiến.”"
+                ],
+                ans: 2,
+                exp: "Mức “công cụ” là khi AI được dùng để làm một tác vụ cụ thể, ngắn hạn, tương đối đơn giản. Gợi ý 5 tiêu đề là một yêu cầu dạng tác vụ. Trong khi đó, các đáp án còn lại đã tiến gần hoặc đi thẳng vào mức “trợ lý” hay “đồng hành tư duy”, vì AI được huy động để phân tích, phản biện, cố vấn, đồng thiết kế."
+            },
+            {
+                q: "Câu 5: Ví dụ nào dưới đây thể hiện AI đang được dùng ở mức trợ lý?",
+                opts: [
+                    "A. “Viết hộ tôi một đoạn mở bài ngắn.”",
+                    "B. “Tạo cho tôi kế hoạch dạy 35 phút gồm mục tiêu, hoạt động, học liệu và cách đánh giá.”",
+                    "C. “Cho tôi một hình minh họa đẹp.”",
+                    "D. “Đọc suy nghĩ của tôi và tự làm mọi thứ.”"
+                ],
+                ans: 1,
+                exp: "Ở mức “trợ lý”, AI không chỉ làm một phần việc rời rạc mà có thể hỗ trợ giáo viên xử lý một gói nhiệm vụ tương đối hoàn chỉnh. Ví dụ: lên kế hoạch bài dạy, chia hoạt động, gợi ý học liệu, thiết kế đánh giá. Đây là mức sử dụng rất thực tế với giáo viên, vì nó giúp giảm tải thao tác nhưng vẫn giữ vai trò chủ động quyết định của người dạy."
+            },
+            {
+                q: "Câu 6: Đâu là ví dụ rõ nhất của việc dùng AI như đồng hành tư duy?",
+                opts: [
+                    "A. “Viết lại đoạn này cho hay hơn.”",
+                    "B. “Tìm giúp tôi 10 câu hỏi trắc nghiệm.”",
+                    "C. “Hãy đóng vai một đồng nghiệp phản biện, phân tích điểm mạnh – điểm yếu của kế hoạch dạy học này và hỏi ngược lại tôi 3 câu để tôi tự điều chỉnh.”",
+                    "D. “Tạo cho tôi một bảng đẹp.”"
+                ],
+                ans: 2,
+                exp: "“Đồng hành tư duy” là khi AI được dùng để đối thoại cùng tư duy của giáo viên, không chỉ cung cấp sản phẩm. AI ở vai trò này giúp phát hiện điểm mù, phản biện kế hoạch, gợi câu hỏi sâu hơn, mở rộng góc nhìn. Đây là kiểu dùng AI giúp giáo viên phát triển năng lực thiết kế dạy học, năng lực phản tư và năng lực chuyên môn bền vững hơn."
+            },
+            {
+                q: "Câu 7: Trong cấu trúc một prompt tốt, phần Rules có vai trò chính là gì?",
+                opts: [
+                    "A. Yêu cầu AI làm càng nhanh càng tốt",
+                    "B. Quy định nguyên tắc, giới hạn, tiêu chuẩn và những điều AI phải tuân thủ",
+                    "C. Liệt kê càng nhiều từ khóa càng tốt",
+                    "D. Thay thế hoàn toàn nội dung chuyên môn của người dùng"
+                ],
+                ans: 1,
+                exp: "Rules là phần “luật chơi”. Nó giúp AI hiểu rõ cần tuân theo nguyên tắc nào, không được đi chệch sang đâu, phải giữ giọng văn ra sao, phù hợp với đối tượng nào, tránh những lỗi gì. Với giáo viên, phần Rules rất hữu ích khi cần yêu cầu AI: dùng ngôn ngữ dễ hiểu cho học sinh tiểu học, không dùng từ quá hàn lâm, không tạo nội dung lệch chuẩn giáo dục, không viết dài dòng. Có Rules rõ thì đầu ra ổn định và đúng định hướng hơn."
+            },
+            {
+                q: "Câu 8: Trong prompt, phần Skills nên được hiểu đúng nhất là gì?",
+                opts: [
+                    "A. Những hiệu ứng trang trí giúp câu trả lời đẹp hơn",
+                    "B. Những năng lực hoặc vai trò chuyên môn mà AI cần vận dụng để làm việc tốt hơn",
+                    "C. Những câu nói tạo cảm hứng cho AI",
+                    "D. Tên của các phần mềm khác nhau mà người dùng thích dùng"
+                ],
+                ans: 1,
+                exp: "Skills là phần chỉ ra AI cần vận dụng những năng lực nào để xử lý nhiệm vụ. Ví dụ với giáo viên: “hãy vận dụng kỹ năng thiết kế hoạt động học tích cực, phân hóa học sinh, xây dựng câu hỏi đánh giá năng lực, viết ngôn ngữ sư phạm dễ hiểu”. Khi nói rõ Skills, người dùng đang “định vị” AI vào đúng vùng năng lực cần thiết, từ đó câu trả lời có chiều sâu và sát chuyên môn hơn."
+            },
+            {
+                q: "Câu 9: Trong prompt, phần Workflow quan trọng vì lý do nào?",
+                opts: [
+                    "A. Giúp AI trả lời ngẫu hứng hơn",
+                    "B. Giúp AI làm việc theo trình tự rõ ràng, tránh bỏ sót bước",
+                    "C. Giúp prompt ngắn hơn",
+                    "D. Giúp người dùng đỡ phải suy nghĩ mục tiêu"
+                ],
+                ans: 1,
+                exp: "Workflow là quy trình thực hiện. Khi người dùng nêu rõ từng bước, AI sẽ làm việc có trật tự hơn: ví dụ phân tích yêu cầu → xác định mục tiêu → đề xuất cấu trúc → tạo bản nháp → rà lỗi → hoàn thiện đầu ra. Với giáo viên, Workflow đặc biệt quan trọng trong các việc như soạn giáo án, thiết kế đề kiểm tra, xây rubric, làm kế hoạch truyền thông phụ huynh. Không có Workflow, AI dễ nhảy cóc, thiếu bước hoặc trả lời rối."
+            },
+            {
+                q: "Câu 10: Prompt nào dưới đây thể hiện tư duy tốt hơn trong việc thiết lập Rules – Skills – Workflow?",
+                opts: [
+                    "A. “Soạn bài cho tôi.”",
+                    "B. “Hãy làm giúp tôi một giáo án thật hay.”",
+                    "C. “Hãy đóng vai giáo viên tiểu học có kinh nghiệm, soạn kế hoạch dạy học 35 phút cho học sinh lớp 4. Rules: ngôn ngữ đơn giản, hoạt động rõ, phù hợp học sinh tiểu học. Skills: thiết kế hoạt động tích cực, đặt câu hỏi gợi mở, đánh giá cuối giờ. Workflow: 1. Xác định mục tiêu; 2. Thiết kế mở đầu; 3. Xây hoạt động chính; 4. Đề xuất cách kiểm tra cuối giờ; 5. Trình bày thành bảng.”",
+                    "D. “Hãy tự hiểu ý tôi và làm sao cũng được.”"
+                ],
+                ans: 2,
+                exp: "Đây là prompt tốt nhất vì đã thể hiện đầy đủ 3 thành tố quan trọng:<br>- Rules: quy định đầu ra phải đơn giản, rõ, phù hợp học sinh<br>- Skills: yêu cầu AI vận dụng năng lực đúng với nghề dạy học<br>- Workflow: hướng AI đi theo từng bước logic<br>Đây chính là cách nâng cấp tư duy dùng AI từ kiểu hỏi ngẫu hứng sang kiểu thiết kế prompt có chủ đích. Với giáo viên, đây là năng lực rất quan trọng nếu muốn AI thực sự trở thành trợ lý đắc lực và lâu dài hơn nữa là người đồng hành trong tư duy nghề nghiệp."
+            },
+            {
+                q: "Câu 11: Giáo viên muốn nhờ AI tạo đề kiểm tra 15 phút môn Ngữ văn lớp 6. Prompt nào dưới đây là tốt nhất?",
+                opts: [
+                    "A. Hãy tạo cho tôi một đề kiểm tra Văn lớp 6.",
+                    "B. Hãy làm một đề kiểm tra 15 phút môn Ngữ văn cho học sinh lớp 6, có câu hỏi hay và phù hợp.",
+                    "C. Hãy đóng vai giáo viên Ngữ văn THCS, tạo đề kiểm tra 15 phút cho học sinh lớp 6 về nội dung truyện ngắn đã học. Yêu cầu gồm 5 câu trắc nghiệm và 1 câu tự luận ngắn, mức độ từ nhận biết đến thông hiểu, ngôn ngữ rõ ràng, trình bày sạch đẹp, kèm đáp án.",
+                    "D. Hãy viết một đề kiểm tra thật sáng tạo, hấp dẫn, thú vị để học sinh thích làm bài hơn."
+                ],
+                ans: 2,
+                exp: "Prompt C là prompt tốt nhất vì đã xác định rõ vai trò, môn học, khối lớp, thời lượng, dạng câu hỏi, mức độ nhận thức, yêu cầu trình bày và đầu ra cần có đáp án. Đây là cách giao việc rõ ràng nên AI dễ tạo ra sản phẩm dùng được ngay. Các đáp án A, B, D đều còn thiếu nhiều thông tin quan trọng. A quá chung chung. B có khá hơn nhưng vẫn thiếu cấu trúc đầu ra. D thiên về mong muốn cảm tính, chưa đủ tiêu chí chuyên môn. Giáo viên khi viết prompt cần nhớ: càng rõ yêu cầu sư phạm, AI càng hỗ trợ đúng."
+            },
+            {
+                q: "Câu 12: Giáo viên muốn AI soạn giáo án môn Toán lớp 5. Prompt nào dưới đây là tốt nhất?",
+                opts: [
+                    "A. Soạn cho tôi một giáo án Toán lớp 5.",
+                    "B. Hãy soạn giáo án Toán lớp 5 thật chi tiết, dễ hiểu và sinh động.",
+                    "C. Hãy làm giáo án Toán lớp 5 theo chương trình mới, có đủ mục tiêu, hoạt động và bài tập.",
+                    "D. Hãy đóng vai giáo viên tiểu học có kinh nghiệm, soạn giáo án Toán lớp 5 cho 1 tiết 35 phút. Chủ đề: phân số. Yêu cầu có mục tiêu bài học, học liệu, tiến trình dạy học, câu hỏi gợi mở, hoạt động luyện tập, cách đánh giá cuối giờ; ngôn ngữ rõ, phù hợp học sinh tiểu học."
+                ],
+                ans: 3,
+                exp: "Prompt D tốt nhất vì nó làm rõ gần như đầy đủ các thành phần cần thiết của một giáo án: thời lượng, chủ đề, mục tiêu, học liệu, tiến trình, câu hỏi gợi mở, luyện tập, đánh giá, ngôn ngữ phù hợp đối tượng. Đây là kiểu prompt giúp AI hoạt động như một trợ lý chuyên môn, không chỉ viết nội dung chung chung. A và B quá rộng. C đã có định hướng hơn nhưng vẫn thiếu thời lượng, thiếu đối tượng cụ thể và thiếu cách trình bày đầu ra. Với giáo viên, prompt tốt không chỉ là “làm hộ”, mà là “làm đúng chuẩn để dùng được”."
+            },
+            {
+                q: "Câu 13: Giáo viên muốn AI tạo câu hỏi trắc nghiệm kiểm tra bài cũ môn Khoa học lớp 4. Prompt nào là tốt nhất?",
+                opts: [
+                    "A. Hãy cho tôi vài câu hỏi trắc nghiệm môn Khoa học lớp 4.",
+                    "B. Hãy tạo câu hỏi trắc nghiệm kiểm tra bài cũ môn Khoa học cho học sinh lớp 4, nội dung về thực vật.",
+                    "C. Hãy tạo 5 câu hỏi trắc nghiệm Khoa học lớp 4 thật hay, có 4 đáp án.",
+                    "D. Hãy đóng vai giáo viên tiểu học, tạo 5 câu hỏi trắc nghiệm kiểm tra bài cũ môn Khoa học lớp 4 về chủ đề bộ phận của thực vật. Mỗi câu có 4 đáp án, chỉ 1 đáp án đúng, mức độ nhận biết, câu văn ngắn gọn, dễ hiểu, phù hợp để kiểm tra đầu giờ, kèm đáp án và giải thích ngắn."
+                ],
+                ans: 3,
+                exp: "Prompt D là prompt tốt nhất vì đã nêu rõ mục đích sử dụng là kiểm tra bài cũ đầu giờ, chủ đề cụ thể, số lượng câu, cấu trúc đáp án, mức độ nhận thức, độ dài câu văn và yêu cầu kèm đáp án, giải thích. Những thông tin này giúp AI tạo ra bộ câu hỏi sát nhu cầu thực tế lớp học. A, B, C đều vẫn còn thiếu. Thiếu mục đích sử dụng thì câu hỏi có thể không phù hợp. Thiếu mức độ nhận thức thì AI dễ tạo câu quá khó hoặc quá dễ. Đây là điểm giáo viên cần rèn khi dùng AI: không giao việc mơ hồ."
+            },
+            {
+                q: "Câu 14: Giáo viên muốn AI thiết kế đề kiểm tra đọc hiểu tiếng Việt cho học sinh lớp 3. Prompt nào là tốt nhất?",
+                opts: [
+                    "A. Hãy tạo một bài đọc hiểu cho học sinh lớp 3.",
+                    "B. Hãy tạo đề đọc hiểu lớp 3 thật thú vị và dễ hiểu.",
+                    "C. Hãy tạo một đoạn văn ngắn rồi đặt câu hỏi cho học sinh lớp 3 làm bài.",
+                    "D. Hãy đóng vai giáo viên tiểu học, tạo một đề đọc hiểu tiếng Việt cho học sinh lớp 3 gồm: 1 đoạn văn khoảng 120–150 chữ, chủ đề gần gũi với trẻ em, 4 câu hỏi từ nhận biết đến vận dụng nhẹ, ngôn ngữ trong sáng, câu hỏi rõ ràng, có đáp án mẫu, trình bày dễ dùng để in phiếu học tập."
+                ],
+                ans: 3,
+                exp: "Prompt D vượt trội hơn vì xác định rõ độ dài văn bản, chủ đề phù hợp lứa tuổi, số lượng câu hỏi, mức độ tư duy, yêu cầu ngôn ngữ, đáp án mẫu và mục đích sử dụng để in phiếu học tập. Đây là ví dụ rất điển hình cho một prompt tốt trong giáo dục: cụ thể, thực tế, có chuẩn đầu ra. Các đáp án còn lại đều đúng ý chung nhưng chưa đủ thông tin để AI tạo sản phẩm chuẩn. Giáo viên cần nhận ra rằng prompt tốt không nằm ở câu chữ hoa mỹ, mà ở mức độ rõ việc."
+            },
+            {
+                q: "Câu 15: Giáo viên muốn AI hỗ trợ chỉnh sửa giáo án đã có chứ không làm mới hoàn toàn. Prompt nào là tốt nhất?",
+                opts: [
+                    "A. Hãy sửa giáo án này cho hay hơn.",
+                    "B. Hãy chỉnh lại giáo án để hợp lý hơn và dễ dạy hơn.",
+                    "C. Hãy xem giáo án dưới đây rồi góp ý, chỉnh sửa nội dung cho phù hợp.",
+                    "D. Hãy đọc giáo án tôi gửi dưới đây và đóng vai tổ trưởng chuyên môn để góp ý. Nhiệm vụ: chỉ ra 3 điểm mạnh, 3 điểm cần chỉnh, sau đó viết lại phần hoạt động chính sao cho rõ việc học sinh làm, rõ vai trò giáo viên, tăng tính tích cực của học sinh nhưng vẫn giữ đúng mục tiêu bài học."
+                ],
+                ans: 3,
+                exp: "Prompt D là prompt tốt nhất vì không yêu cầu AI sửa một cách mơ hồ, mà định hướng rất rõ vai trò phản hồi, số lượng điểm nhận xét, phần cần viết lại, tiêu chí chỉnh sửa và điều cần giữ nguyên là mục tiêu bài học. Đây là cách dùng AI ở mức cao hơn: không chỉ làm hộ, mà còn phản biện và đồng hành chuyên môn cùng giáo viên. A, B, C đều thiếu tiêu chí cụ thể nên AI có thể chỉnh theo hướng không đúng nhu cầu. Với giáo viên, khi muốn AI sửa bài, cần nói rõ: sửa phần nào, theo tiêu chí nào, giữ lại điều gì."
+            },
+            {
+                q: "Câu 16: Giáo viên muốn AI thiết kế đề kiểm tra Toán lớp 4 về phép chia. Prompt nào là tốt nhất?",
+                opts: [
+                    "A. Hãy tạo đề kiểm tra Toán lớp 4 về phép chia gồm 10 câu, có đáp án.",
+                    "B. Hãy tạo đề kiểm tra Toán lớp 4 về phép chia gồm 10 câu trắc nghiệm và tự luận, có đáp án, phù hợp học sinh.",
+                    "C. Hãy đóng vai giáo viên tiểu học, tạo đề kiểm tra Toán lớp 4 về phép chia gồm 10 câu, có trắc nghiệm và tự luận, có đáp án, trình bày rõ ràng, phù hợp học sinh lớp 4.",
+                    "D. Hãy đóng vai giáo viên tiểu học, tạo đề kiểm tra Toán lớp 4 về phép chia cho tiết 35 phút gồm 6 câu trắc nghiệm và 4 câu tự luận, phân theo mức độ nhận biết – thông hiểu – vận dụng, số liệu phù hợp thực tế học sinh, trình bày sạch, kèm đáp án và hướng dẫn chấm điểm."
+                ],
+                ans: 3,
+                exp: "Cả 4 đáp án đều “ổn”, nhưng D là tốt nhất vì đã chuẩn hóa gần như đầy đủ đầu ra sư phạm: thời lượng, cấu trúc câu hỏi, phân hóa mức độ, tính thực tế, trình bày, đáp án và cả hướng dẫn chấm. Đây là điểm khác biệt giữa “prompt khá” và “prompt chuẩn dùng ngay”. A và B thiếu phân hóa. C có vai trò nhưng vẫn thiếu tiêu chí đánh giá và mức độ tư duy."
+            },
+            {
+                q: "Câu 17: Giáo viên muốn AI soạn hoạt động khởi động cho tiết học Tiếng Việt lớp 2. Prompt nào là tốt nhất?",
+                opts: [
+                    "A. Hãy gợi ý hoạt động khởi động cho tiết Tiếng Việt lớp 2.",
+                    "B. Hãy gợi ý hoạt động khởi động Tiếng Việt lớp 2 thú vị, dễ thực hiện.",
+                    "C. Hãy đóng vai giáo viên tiểu học, gợi ý hoạt động khởi động cho tiết Tiếng Việt lớp 2, vui nhộn, phù hợp học sinh nhỏ.",
+                    "D. Hãy đóng vai giáo viên tiểu học, thiết kế 2 hoạt động khởi động cho tiết Tiếng Việt lớp 2 (5 phút), mục tiêu tạo hứng thú và kết nối bài mới, yêu cầu dễ triển khai trong lớp đông, học sinh tham gia toàn lớp, mô tả rõ cách tổ chức, lời dẫn của giáo viên và dự kiến phản ứng của học sinh."
+                ],
+                ans: 3,
+                exp: "Sự khác biệt nằm ở mức độ triển khai thực tế. D không chỉ nói “hoạt động hay”, mà còn yêu cầu rõ: thời lượng, mục tiêu, điều kiện lớp học, cách tổ chức, lời dẫn, phản ứng học sinh. Đây là Workflow rõ ràng → giúp AI tạo nội dung dùng được ngay. A, B, C đều đúng hướng nhưng vẫn mang tính “ý tưởng”, chưa đủ để áp dụng trực tiếp trên lớp."
+            },
+            {
+                q: "Câu 18: Giáo viên muốn AI tạo câu hỏi tự luận môn Lịch sử lớp 5. Prompt nào là tốt nhất?",
+                opts: [
+                    "A. Hãy tạo câu hỏi tự luận Lịch sử lớp 5.",
+                    "B. Hãy tạo 3 câu hỏi tự luận Lịch sử lớp 5, nội dung phù hợp chương trình.",
+                    "C. Hãy đóng vai giáo viên tiểu học, tạo 3 câu hỏi tự luận Lịch sử lớp 5, phù hợp học sinh, có đáp án.",
+                    "D. Hãy đóng vai giáo viên tiểu học, tạo 3 câu hỏi tự luận Lịch sử lớp 5 về một sự kiện đã học, mỗi câu yêu cầu học sinh trình bày ngắn gọn (3–5 dòng), mức độ từ thông hiểu đến vận dụng nhẹ, câu hỏi rõ ràng, tránh đánh đố, kèm đáp án gợi ý theo ý chính."
+                ],
+                ans: 3,
+                exp: "Điểm khác biệt của D là đã làm rõ: độ dài câu trả lời, mức độ tư duy, cách đặt câu hỏi (không đánh đố) và dạng đáp án gợi ý. Đây là những yếu tố rất quan trọng trong kiểm tra tự luận nhưng thường bị bỏ sót khi viết prompt. A, B, C đều có tiến bộ dần, nhưng vẫn thiếu tiêu chí kiểm soát chất lượng câu hỏi."
+            },
+            {
+                q: "Câu 19: Giáo viên muốn AI hỗ trợ phân tích bài làm của học sinh. Prompt nào là tốt nhất?",
+                opts: [
+                    "A. Hãy nhận xét bài làm của học sinh này.",
+                    "B. Hãy nhận xét bài làm của học sinh và góp ý để cải thiện.",
+                    "C. Hãy đóng vai giáo viên, nhận xét bài làm của học sinh và đưa ra góp ý cụ thể.",
+                    "D. Hãy đọc bài làm của học sinh dưới đây và đóng vai giáo viên tiểu học để nhận xét. Yêu cầu: chỉ ra điểm tốt, lỗi sai cụ thể, giải thích vì sao sai, và đề xuất 2 cách cải thiện phù hợp với trình độ học sinh; lời nhận xét tích cực, dễ hiểu, mang tính khích lệ."
+                ],
+                ans: 3,
+                exp: "D là prompt ở mức “đồng hành tư duy” vì yêu cầu AI không chỉ nhận xét mà còn phân tích lỗi – giải thích – đề xuất cải thiện – giữ thái độ sư phạm tích cực. Đây là cách dùng AI giúp giáo viên nâng chất lượng phản hồi học sinh. A, B, C đều thiếu tiêu chí cụ thể nên phản hồi dễ chung chung hoặc thiếu chiều sâu."
+            },
+            {
+                q: "Câu 20: Giáo viên muốn AI chỉnh sửa một đề kiểm tra đã có. Prompt nào là tốt nhất?",
+                opts: [
+                    "A. Hãy chỉnh sửa đề kiểm tra này cho tốt hơn.",
+                    "B. Hãy chỉnh sửa đề kiểm tra này cho rõ ràng và hợp lý hơn.",
+                    "C. Hãy đóng vai giáo viên, chỉnh sửa đề kiểm tra này cho phù hợp học sinh.",
+                    "D. Hãy đọc đề kiểm tra dưới đây và đóng vai giáo viên tiểu học để chỉnh sửa. Nhiệm vụ: phát hiện câu hỏi chưa rõ, câu quá dễ hoặc quá khó, chỉnh lại câu chữ cho dễ hiểu, đảm bảo phù hợp trình độ học sinh, giữ nguyên cấu trúc đề, sau đó trình bày lại bản hoàn chỉnh kèm ghi chú những điểm đã thay đổi."
+                ],
+                ans: 3,
+                exp: "D là prompt tốt nhất vì có đủ:<br>- Rules: giữ cấu trúc đề, phù hợp trình độ<br>- Skills: phát hiện lỗi, chỉnh ngôn ngữ, cân độ khó<br>- Workflow: phân tích → chỉnh sửa → trình bày lại → ghi chú thay đổi<br>Đây chính là cách dùng AI như một trợ lý chuyên môn có hệ thống, không phải chỉ “sửa chung chung”. Các đáp án còn lại đều thiếu tiêu chí cụ thể nên AI khó tạo ra kết quả đúng mong muốn."
+            }
+        ];
+
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        function renderQuiz() {
+            const container = document.getElementById("quiz-container");
+            quizData.forEach((item, qIndex) => {
+                const block = document.createElement('div');
+                block.className = 'q-block';
+                block.dataset.index = qIndex;
+
+                const title = document.createElement('div');
+                title.className = 'q-title';
+                title.innerHTML = item.q;
+                block.appendChild(title);
+
+                const optsList = document.createElement('div');
+                optsList.className = 'options-list';
+
+                item.opts.forEach((optText, optIndex) => {
+                    const label = document.createElement('label');
+                    label.className = 'option';
+                    
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = 'q_' + qIndex;
+                    radio.value = optIndex;
+                    radio.onchange = () => handleSelect(qIndex, optIndex, label);
+
+                    label.appendChild(radio);
+                    label.appendChild(document.createTextNode(optText));
+                    optsList.appendChild(label);
+                });
+                
+                block.appendChild(optsList);
+
+                const expDiv = document.createElement('div');
+                expDiv.className = 'explanation';
+                expDiv.innerHTML = '<b>💡 Giải thích chi tiết:</b>' + item.exp;
+                block.appendChild(expDiv);
+
+                container.appendChild(block);
+            });
+        }
+
+        function handleSelect(qIndex, optIndex, labelElement) {
+            userAnswers[qIndex] = optIndex;
+            const block = document.querySelector(`.q-block[data-index="${qIndex}"]`);
+            block.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
+            labelElement.classList.add('selected');
+        }
+
+        // Global functions required by system
+        window.getUnanswered = function() {
+            return userAnswers.filter(a => a === null).length;
+        };
+
+        window.getScore = function() {
+            let correctCount = 0;
+            for (let i = 0; i < quizData.length; i++) {
+                if (userAnswers[i] === quizData[i].ans) {
+                    correctCount++;
+                }
+            }
+            return (correctCount / quizData.length) * 10;
+        };
+
+        window.showAnswers = function() {
+            const inputs = document.querySelectorAll('input[type="radio"]');
+            inputs.forEach(input => input.disabled = true);
+
+            const btn = document.querySelector('button');
+            if (btn) btn.disabled = true;
+
+            quizData.forEach((item, i) => {
+                const block = document.querySelector(`.q-block[data-index="${i}"]`);
+                const correctAns = item.ans;
+                const userAns = userAnswers[i];
+                
+                const options = block.querySelectorAll('.option');
+                options.forEach((opt, idx) => {
+                    opt.classList.remove('selected');
+                    if (idx === correctAns) {
+                        opt.classList.add('correct');
+                    } else if (idx === userAns && userAns !== correctAns) {
+                        opt.classList.add('wrong');
+                    }
+                });
+
+                const expDiv = block.querySelector('.explanation');
+                expDiv.style.display = 'block';
+            });
+        };
+
+        window.handleSubmit = function() {
+            // Function exists to fulfill button requirement. 
+            // External system overrides this or handles click via event listeners.
+        };
+
+        document.addEventListener('DOMContentLoaded', renderQuiz);
+    </script>
+</body>
+</html>
+
+    <script>
+        const sheetData = {"headers":["",""],"rows":[["Phòng ban","Tên Nhân Viên"],["01.Ban Điều Hành","Phạm Tuấn Đạt"],["02.Ban Giám Hiệu","Nguyễn Thị Hồng Liên"],["02.Ban Giám Hiệu","Phạm Thị Tâm"],["02.Ban Giám Hiệu","Trần Thị Bích Liên"],["02.Ban Giám Hiệu","Trần Văn Tiến"],["04.GV Tiểu Học","Bùi Thị Ngọc Hà"],["04.GV Tiểu Học","Chẩu Thanh Nga"],["04.GV Tiểu Học","Chu Thị Oanh"],["04.GV Tiểu Học","Chu Thị Thảo"],["04.GV Tiểu Học","Đàm Hương Giang"],["04.GV Tiểu Học","Đặng Thị Huyền Linh"],["04.GV Tiểu Học","Đào Thị Mai Thu"],["04.GV Tiểu Học","Đào Thị Phương Hoa"],["04.GV Tiểu Học","Đinh Thị Hà"],["04.GV Tiểu Học","Đinh Thị Oanh"],["04.GV Tiểu Học","Đỗ Phương Thảo"],["04.GV Tiểu Học","Đỗ Thị Bích Phương"],["04.GV Tiểu Học","Đỗ Thị Hồng Hạnh"],["04.GV Tiểu Học","Đoàn Thị Xuyến"],["04.GV Tiểu Học","Dương Thị Hiền"],["04.GV Tiểu Học","Dương Thị Minh Phương"],["04.GV Tiểu Học","Hoàng Thị Hiền"],["04.GV Tiểu Học","Hoàng Thúy Mai"],["04.GV Tiểu Học","Lê Phương Thảo"],["04.GV Tiểu Học","Lê Thị Bích Hậu"],["04.GV Tiểu Học","Lê Thị Linh"],["04.GV Tiểu Học","Lê Thị Ngọc Ánh"],["04.GV Tiểu Học","Lê Thị Yến"],["04.GV Tiểu Học","Lê Thu Hà"],["04.GV Tiểu Học","Lưu Thị Ánh Hồng"],["04.GV Tiểu Học","Lý Phương Linh"],["04.GV Tiểu Học","Mai Thị Hường"],["04.GV Tiểu Học","Ngô Thị Thanh Thanh"],["04.GV Tiểu Học","Nguyễn Bích Phượng"],["04.GV Tiểu Học","Nguyễn Đức Mạnh"],["04.GV Tiểu Học","Nguyễn Hồng Trang"],["04.GV Tiểu Học","Nguyễn Lan Nhi"],["04.GV Tiểu Học","Nguyễn Minh Ngọc"],["04.GV Tiểu Học","Nguyễn Minh Thùy"],["04.GV Tiểu Học","Nguyễn Ngọc Khánh"],["04.GV Tiểu Học","Nguyễn Ngọc Sâm"],["04.GV Tiểu Học","Nguyễn Ngọc Thương"],["04.GV Tiểu Học","Nguyễn Thị Hằng Nga"],["04.GV Tiểu Học","Nguyễn Thị Hạnh 93"],["04.GV Tiểu Học","Nguyễn Thị Hạnh 94 - A"],["04.GV Tiểu Học","Nguyễn Thị Hạnh 94 - B"],["04.GV Tiểu Học","Nguyễn Thị Hoa"],["04.GV Tiểu Học","Nguyễn Thị Hồng Trang"],["04.GV Tiểu Học","Nguyễn Thị Lan Anh"],["04.GV Tiểu Học","Nguyễn Thị Lê"],["04.GV Tiểu Học","Nguyễn Thị Lịch"],["04.GV Tiểu Học","Nguyễn Thị Mai Thư"],["04.GV Tiểu Học","Nguyễn Thị Minh Hiền"],["04.GV Tiểu Học","Nguyễn Thị Ngọc"],["04.GV Tiểu Học","Nguyễn Thị Nhật Lệ"],["04.GV Tiểu Học","Nguyễn Thị Phương Dung"],["04.GV Tiểu Học","Nguyễn Thị Thắng"],["04.GV Tiểu Học","Nguyễn Thị Thanh Hoa"],["04.GV Tiểu Học","Nguyễn Thị Thanh Huyền"],["04.GV Tiểu Học","Nguyễn Thị Thanh Ngân"],["04.GV Tiểu Học","Nguyễn Thị Thu Hà"],["04.GV Tiểu Học","Nguyễn Thị Thu Hương"],["04.GV Tiểu Học","Nguyễn Thị Thúy Hằng 90"],["04.GV Tiểu Học","Nguyễn Thị Thùy Linh"],["04.GV Tiểu Học","Nguyễn Thị Tuyết"],["04.GV Tiểu Học","Nguyễn Thị Vân Anh"],["04.GV Tiểu Học","Nguyễn Thị Xuân Phương"],["04.GV Tiểu Học","Nguyễn Tú Anh"],["04.GV Tiểu Học","Nguyễn Vi Thị Thu Thủy"],["04.GV Tiểu Học","Nhữ Thị Minh Phương"],["04.GV Tiểu Học","Phạm Thị Ngọc Huyền"],["04.GV Tiểu Học","Phan Thị Hồng Tuyết"],["04.GV Tiểu Học","Trần Thị Diệu Linh"],["04.GV Tiểu Học","Trần Thị Hậu"],["04.GV Tiểu Học","Trần Thị Vân"],["04.GV Tiểu Học","Trịnh Kim Anh"],["04.GV Tiểu Học","Trịnh Mai Anh"],["04.GV Tiểu Học","Trịnh Thị Ngọc Diễm"],["04.GV Tiểu Học","Vũ Hà My"],["04.GV Tiểu Học","Vũ Thị Kiều Trang"],["04.GV Tiểu Học","Vũ Thị Phượng"],["04.GV Tiểu Học","Vũ Vân Anh"],["05.GV THCS","Bùi Thị Thùy Dương"],["05.GV THCS","Chu Thị Ngân"],["05.GV THCS","Đặng Phương Thảo"],["05.GV THCS","Đậu Phương Uyên"],["05.GV THCS","Đinh Thị Ngân"],["05.GV THCS","Đoàn Thanh Hương"],["05.GV THCS","Hoàng Thị Bích"],["05.GV THCS","Hoàng Thị Quỳnh Trang"],["05.GV THCS","Lê Anh Tuấn"],["05.GV THCS","Lê Thị Thúy Hằng"],["05.GV THCS","Lương Thị Hồng Nhung"],["05.GV THCS","Lương Thị Thanh"],["05.GV THCS","Ngô Thị Hoài"],["05.GV THCS","Nguyễn Ngọc Mai"],["05.GV THCS","Nguyễn Như Quỳnh"],["05.GV THCS","Nguyễn Thanh Hiền"],["05.GV THCS","Nguyễn Thị Bích 90"],["05.GV THCS","Nguyễn Thị Hồng Nhi"],["05.GV THCS","Nguyễn Thị Hữu"],["05.GV THCS","Nguyễn Thị Lan Anh"],["05.GV THCS","Nguyễn Thị Linh"],["05.GV THCS","Nguyễn Thị Minh Hậu"],["05.GV THCS","Nguyễn Thị Minh Thu"],["05.GV THCS","Nguyễn Thị Ngọc Thư"],["05.GV THCS","Nguyễn Thị Oanh"],["05.GV THCS","Nguyễn Thị Thu Hoài"],["05.GV THCS","Nguyễn Thị Thùy An"],["05.GV THCS","Nguyễn Thị Thúy Nga"],["05.GV THCS","Nguyễn Thị Tuyết 20"],["05.GV THCS","Nguyễn Trung Hưng"],["05.GV THCS","Phạm Thị Hằng"],["05.GV THCS","Phạm Thị Thu Duy"],["05.GV THCS","Phùng Ngọc Lan"],["05.GV THCS","Phùng Trọng Quyết"],["05.GV THCS","Trần Quỳnh Liên"],["05.GV THCS","Trần Thanh Hà"],["05.GV THCS","Trần Thị Minh Phương"],["05.GV THCS","Trần Y Cường"],["05.GV THCS","Trịnh Anh Việt"],["05.GV THCS","Trịnh Thanh Phương"],["05.GV THCS","Vũ Anh Đức"],["05.GV THCS","Vũ Ngọc Cương"],["05.GV THCS","Vũ Thanh Hảo"],["05.GV THCS","Vũ Thùy Dương"],["05.GV THCS","Vũ Thùy Linh"],["06.GV Tiếng Anh","Bùi Thị Lan Hương"],["06.GV Tiếng Anh","Bùi Thị Thu Huyền"],["06.GV Tiếng Anh","Đặng Thị Bích"],["06.GV Tiếng Anh","Đào Thị Huyền"],["06.GV Tiếng Anh","Đào Thị Thu Hà"],["06.GV Tiếng Anh","Đào Thị Thủy"],["06.GV Tiếng Anh","Đoàn Thị Thúy"],["06.GV Tiếng Anh","Hà Thị Nhài"],["06.GV Tiếng Anh","Hoàng Thị Nhung"],["06.GV Tiếng Anh","Hoàng Thu Hoài"],["06.GV Tiếng Anh","Lê Thị Linh"],["06.GV Tiếng Anh","Lý Thị Kim Nhung"],["06.GV Tiếng Anh","Ngô Thị Hằng 95"],["06.GV Tiếng Anh","Nguyễn Hà My"],["06.GV Tiếng Anh","Nguyễn Hồng Ngọc"],["06.GV Tiếng Anh","Nguyễn Phương Thảo"],["06.GV Tiếng Anh","Nguyễn Thị Hồng Vân 92"],["06.GV Tiếng Anh","Nguyễn Thị Hồng Vân 97"],["06.GV Tiếng Anh","Nguyễn Thị Hương"],["06.GV Tiếng Anh","Nguyễn Thị Huyền 90"],["06.GV Tiếng Anh","Nguyễn Thị Mai Phương"],["06.GV Tiếng Anh","Nguyễn Thị Ngọc Huyền"],["06.GV Tiếng Anh","Nguyễn Thị Nhung"],["06.GV Tiếng Anh","Nguyễn Thị Phương Anh"],["06.GV Tiếng Anh","Nguyễn Thị Phương Lan"],["06.GV Tiếng Anh","Nguyễn Thị Thu Nga"],["06.GV Tiếng Anh","Nguyễn Thị Trà"],["06.GV Tiếng Anh","Phạm Thị Quyên"],["06.GV Tiếng Anh","Phạm Thị Thảo"],["06.GV Tiếng Anh","Quang Thị Thanh Huyền"],["06.GV Tiếng Anh","Tạ Thị Thục Anh"],["06.GV Tiếng Anh","Tạ Thu Thủy"],["06.GV Tiếng Anh","Trần Huyền Trang"],["06.GV Tiếng Anh","Trần Thị Hà Anh"],["06.GV Tiếng Anh","Trần Thị Khánh Linh"],["06.GV Tiếng Anh","Vũ Thị Thanh Tâm"],["06.GV Tiếng Anh","Vũ Thị Thanh Thuý"],["06.GV Tiếng Anh","Vũ Thị Thu Huyền"],["06.GV Tiếng Anh","Vương Minh Ngọc"],["07.GV Kỹ Năng","Bùi Kim Ngọc"],["07.GV Kỹ Năng","Đặng Anh Đức"],["07.GV Kỹ Năng","Đinh Duy Thiện"],["07.GV Kỹ Năng","Hà Huy Minh"],["07.GV Kỹ Năng","Hoàng Chà My"],["07.GV Kỹ Năng","Lưu Văn Tưởng"],["07.GV Kỹ Năng","Nguyễn Bá Chung"],["07.GV Kỹ Năng","Nguyễn Hải Quân"],["07.GV Kỹ Năng","Nguyễn Khắc Phương"],["07.GV Kỹ Năng","Nguyễn Thanh Hiền"],["07.GV Kỹ Năng","Nguyễn Thị Hải Yến"],["07.GV Kỹ Năng","Nguyễn Thị Lan 81"],["07.GV Kỹ Năng","Nguyễn Thị Mẫn"],["07.GV Kỹ Năng","Nguyễn Thị My"],["07.GV Kỹ Năng","Nguyễn Thị Thùy Anh"],["07.GV Kỹ Năng","Nguyễn Vân Hạnh"],["07.GV Kỹ Năng","Nguyễn Văn Nhượng"],["07.GV Kỹ Năng","Nguyễn Văn Tin"],["07.GV Kỹ Năng","Phạm Quốc Trung"],["07.GV Kỹ Năng","Phạm Trọng Biên"],["07.GV Kỹ Năng","Phan Đình Hiếu"],["07.GV Kỹ Năng","Phan Trung Hiếu"],["07.GV Kỹ Năng","Tạ Thị Lan"],["07.GV Kỹ Năng","Trần Long Nhật"],["07.GV Kỹ Năng","Trần Thị Thùy Dung"],["07.GV Kỹ Năng","Trần Văn Tuyền"],["07.GV Kỹ Năng","Vũ Thị Lệ Giang"],["07.GV Kỹ Năng","Vũ Thị Tiên"],["08.ĐTVH-HC-NS","Bùi Văn Mạnh"],["08.ĐTVH-HC-NS","Đặng Thị Lương"],["08.ĐTVH-HC-NS","Đoàn Văn Điệp"],["08.ĐTVH-HC-NS","Hoàng Thị Nghĩa"],["08.ĐTVH-HC-NS","Lê Duy Long"],["08.ĐTVH-HC-NS","Lê Thị Hồng Cẩm"],["08.ĐTVH-HC-NS","Lê Thị Tâm"],["08.ĐTVH-HC-NS","Nguyễn Hoàng Đức"],["08.ĐTVH-HC-NS","Nguyễn Phúc Nghĩa"],["08.ĐTVH-HC-NS","Nguyễn Quang Huy"],["08.ĐTVH-HC-NS","Nguyễn Thị Minh Lan"],["08.ĐTVH-HC-NS","Nguyễn Thị Thu Phương"],["08.ĐTVH-HC-NS","Nguyễn Văn Hanh"],["08.ĐTVH-HC-NS","Phạm Thị Hoa"],["08.ĐTVH-HC-NS","Phí Thị Huyền Trang"],["08.ĐTVH-HC-NS","Phương Quang Long"],["09.K.Toán T.Chính","Lê Thị Vân Anh"],["09.K.Toán T.Chính","Nguyễn Thị Giang"],["09.K.Toán T.Chính","Nguyễn Thị Hiến"],["09.K.Toán T.Chính","Nguyễn Thị Thao"],["10.T.Sinh-CSPH","Nguyễn Thị Lan 85"],["10.T.Sinh-CSPH","Nguyễn Thị Phượng"],["10.T.Sinh-CSPH","Nguyễn Thị Trang"],["11.Bếp Ăn","Đặng Thùy Dương"],["11.Bếp Ăn","Đỗ Đình Nam"],["11.Bếp Ăn","Đỗ Thị Hồng Nhung"],["11.Bếp Ăn","Hà Văn Xiểm"],["11.Bếp Ăn","Lê Thị Hằng"],["11.Bếp Ăn","Lê Thị Hiền 87"],["11.Bếp Ăn","Lê Thị Nhẫn"],["11.Bếp Ăn","Lưu Trọng Vĩnh"],["11.Bếp Ăn","Nguyễn Hoàng Tùng"],["11.Bếp Ăn","Nguyễn Quang Trường"],["11.Bếp Ăn","Nguyễn Thị Bích Thuận"],["11.Bếp Ăn","Nguyễn Thị Phương"],["11.Bếp Ăn","Nguyễn Thị Thêm"],["11.Bếp Ăn","Nguyễn Thị Vân"],["11.Bếp Ăn","Nguyễn Tuấn Anh"],["11.Bếp Ăn","Nguyễn Văn Thủy"],["11.Bếp Ăn","Phạm Hồng Len"],["11.Bếp Ăn","Phạm Thị Thơm"],["11.Bếp Ăn","Phạm Văn Hòa"],["11.Bếp Ăn","Phùng Thị Hiền"],["11.Bếp Ăn","Thạc Thị Phương"],["11.Bếp Ăn","Trương Văn Huân"],["11.Bếp Ăn","Tưởng Thị Sen"],["11.Bếp Ăn","Vũ Tiến Thành"],["11.Bếp Ăn","Vũ Văn Kiêm"],["12.Nội Trú","Lê Hữu Chỉnh"],["12.Nội Trú","Vũ Ngọc Đức"],["14.Tổng Vụ","Đặng Tuấn Anh"],["14.Tổng Vụ","Đinh Văn Toàn"],["14.Tổng Vụ","Hoàng Văn Dương"],["14.Tổng Vụ","Nguyễn Huy Trung"],["14.Tổng Vụ","Nguyễn Viết Hoàng Anh"],["14.Tổng Vụ","Trần Thế Anh"],["14.Tổng Vụ","Vũ Hoàng Minh Đạt"],["15.Tr.Thông T.Kế","Đào Mạnh Tuấn"],["15.Tr.Thông T.Kế","Nguyễn Duy Thơ"],["15.Tr.Thông T.Kế","Nguyễn Thị Hương"],["15.Tr.Thông T.Kế","Nguyễn Trần Đức Khánh"],["15.Tr.Thông T.Kế","Nông Thanh Toàn"],["15.Tr.Thông T.Kế","Trần Bạch Trang"],["16.Sạch đẹp","Đàm Thị Hiền"],["16.Sạch đẹp","Kiều Thị Lệ"],["16.Sạch đẹp","Lê Thị Liễu"],["16.Sạch đẹp","Lê Thị Thanh"],["16.Sạch đẹp","Lưu Thị Huệ"],["16.Sạch đẹp","Nguyễn Thị Hà"],["16.Sạch đẹp","Nguyễn Thị Hảo"],["16.Sạch đẹp","Nguyễn Thị Hảo 81"],["16.Sạch đẹp","Nguyễn Thị Thúy Quỳnh"],["16.Sạch đẹp","Vũ Thị Hậu"],["16.Sạch đẹp","Vương Thị Huyền"],["17.An Ninh","Nguyễn Ngọc Chinh"],["17.An Ninh","Phạm Ngọc Khanh"],["17.An Ninh","Trần Đức Kiền"],["Nghỉ chế độ","Hoàng Thị Hương"],["Nghỉ chế độ","Lê Thị Hà"],["Nghỉ chế độ","Nguyễn Thị Bích 20"],["Nghỉ chế độ","Nguyễn Thị Hùy"],["Nghỉ chế độ","Nguyễn Thị Thúy Hằng 98"],["Nghỉ chế độ","Nguyễn Tuyết Ngân"],["Nghỉ chế độ","Trần Thị Huệ"],["Nghỉ chế độ","Trần Thị Minh Tâm"],["Nghỉ chế độ","Vũ Bích Ngọc"],["04.GV Tiểu Học","Lê Phương Thảo"],["04.GV Tiểu Học","Nguyễn Thị Xuân Phương"],["05.GV THCS","Lê Anh Tuấn"],["05.GV THCS","Nguyễn Thị Minh Hậu"],["05.GV THCS","Phùng Ngọc Lan"],["06.GV Tiếng Anh","Nguyễn Thị Nhung"],["06.GV Tiếng Anh","Vũ Thị Thanh Thuý"],["04.GV Tiểu Học","Lê Phương Thảo"],["04.GV Tiểu Học","Nguyễn Thị Xuân Phương"],["05.GV THCS","Lê Anh Tuấn"],["05.GV THCS","Nguyễn Thị Minh Hậu"],["05.GV THCS","Phùng Ngọc Lan"],["06.GV Tiếng Anh","Nguyễn Thị Nhung"],["06.GV Tiếng Anh","Vũ Thị Thanh Thuý"]]};
+        const testName = "Kiểm tra ứng dụng AI";
+        let lopMacDinh = "Trường XTD";
+        let timeLeft = 5 * 60;
+        let timerInterval;
+        let isSubmitted = false;
+
+        window.onload = function() {
+            initDynamicFilters();
+            initTimer();
+            hideAIInputs();
+        };
+
+        function hideAIInputs() {
+            const aiLop = document.getElementById('id_input_lop');
+            const aiTen = document.getElementById('id_input_ten');
+            if(aiLop) { if(aiLop.previousElementSibling?.tagName==='LABEL') aiLop.previousElementSibling.remove(); aiLop.remove(); }
+            if(aiTen) { if(aiTen.previousElementSibling?.tagName==='LABEL') aiTen.previousElementSibling.remove(); aiTen.remove(); }
+        }
+
+        function initDynamicFilters() {
+            const container = document.getElementById('xtd-dynamic-filters');
+            const headers = sheetData.headers;
+            const rows = sheetData.rows;
+            let currentFilters = new Array(headers.length).fill('');
+
+            function renderSelects() {
+                container.innerHTML = '';
+                headers.forEach((header, colIndex) => {
+                    const select = document.createElement('select');
+                    select.style.cssText = 'padding:8px; border-radius:4px; border:1px solid #ccc; min-width:150px;';
+                    select.innerHTML = '<option value="">-- Chọn ' + (header || 'Cột ' + (colIndex+1)) + ' --</option>';
+
+                    let validRows = rows.filter(row => {
+                        for(let i = 0; i < colIndex; i++) {
+                            if(currentFilters[i] && row[i] !== currentFilters[i]) return false;
+                        }
+                        return true;
+                    });
+
+                    [...new Set(validRows.map(row => row[colIndex]))].filter(v => v).forEach(val => {
+                        const opt = document.createElement('option');
+                        opt.value = val; opt.innerText = val;
+                        if(currentFilters[colIndex] === val) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+
+                    select.onchange = (e) => {
+                        currentFilters[colIndex] = e.target.value;
+                        for(let i = colIndex + 1; i < headers.length; i++) currentFilters[i] = '';
+                        renderSelects();
+                        syncHiddenValues();
+                    };
+                    container.appendChild(select);
+                });
+            }
+
+            function syncHiddenValues() {
+                let realTen = document.getElementById('xtd_real_ten');
+                if(!realTen) { realTen = document.createElement('input'); realTen.type='hidden'; realTen.id='xtd_real_ten'; document.body.appendChild(realTen); }
+                realTen.value = currentFilters[headers.length - 1] !== '' ? currentFilters[headers.length - 1] : '';
+
+                let realLop = document.getElementById('xtd_real_lop');
+                if(!realLop) { realLop = document.createElement('input'); realLop.type='hidden'; realLop.id='xtd_real_lop'; document.body.appendChild(realLop); }
+                realLop.value = headers.length > 1 ? currentFilters.slice(0, -1).filter(v => v).join(' - ') : lopMacDinh;
+            }
+
+            renderSelects();
+            syncHiddenValues();
+        }
+
+        function initTimer() {
+            const timerDisplay = document.getElementById('timer-display');
+            if(timerDisplay) {
+                timerInterval = setInterval(function() {
+                    if(isSubmitted) return;
+                    let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+                    timerDisplay.innerText = m + ':' + (s < 10 ? '0' : '') + s;
+                    if (timeLeft <= 0) { clearInterval(timerInterval); alert("Hết giờ! Tự động thu bài."); handleSubmit(true); }
+                    timeLeft--;
+                }, 1000);
+            }
+        }
+
+        function showResultAndAnswers(diemHienThi, isOffline = false) {
+            const oldBanner = document.getElementById('xtd-result-banner');
+            if (oldBanner) oldBanner.remove();
+            const banner = document.createElement('div');
+            banner.id = 'xtd-result-banner';
+            const bgColor = isOffline ? '#fff9c4' : '#e8f5e9';
+            const textColor = isOffline ? '#f57f17' : '#2e7d32';
+            const borderColor = isOffline ? '#fbc02d' : '#4caf50';
+            const title = isOffline ? '[OFFLINE] KẾT QUẢ BÀI LÀM' : 'BẠN ĐÃ HOÀN THÀNH BÀI KIỂM TRA!';
+            banner.innerHTML = '<div style="text-align:center;background:'+bgColor+';color:'+textColor+';padding:20px;border-radius:8px;margin:20px 10px;border:2px solid '+borderColor+';font-size:20px;font-weight:bold;">'+title+'<br><span style="font-size:28px;">Điểm: '+diemHienThi+'/10</span></div>';
+            const topBar = document.getElementById('xtd-top-bar');
+            if(topBar) topBar.parentNode.insertBefore(banner, topBar.nextSibling);
+            else document.body.insertBefore(banner, document.body.firstChild);
+
+            document.querySelectorAll('button').forEach(btn => {
+                if(btn.getAttribute('onclick')?.includes('handleSubmit')) {
+                    btn.innerHTML = isOffline ? 'ĐÃ NỘP BÀI (OFFLINE)' : 'ĐÃ NỘP BÀI';
+                    btn.style.opacity = '0.6'; btn.style.cursor = 'not-allowed'; btn.disabled = true;
+                }
+            });
+
+            if (typeof window.showAnswers === "function") window.showAnswers();
+            else console.warn("AI không cung cấp hàm showAnswers().");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleSubmit(isAutoSubmit = false) {
+            if(isSubmitted) return;
+            let hoTen = document.getElementById('xtd_real_ten')?.value || "";
+            let lop = document.getElementById('xtd_real_lop')?.value || lopMacDinh;
+
+            if(!hoTen && !isAutoSubmit) { alert("Vui lòng chọn đầy đủ thông tin Họ tên ở thanh công cụ phía trên trước khi nộp!"); return; }
+            if(!hoTen && isAutoSubmit) hoTen = "Chưa chọn tên (Hết giờ)";
+
+            let unanswered = typeof window.getUnanswered === "function" ? window.getUnanswered() : 0;
+            if (!isAutoSubmit && unanswered > 0) {
+                if (!confirm('Bạn còn ' + unanswered + ' phần chưa làm. Có nộp không?')) return;
+            }
+
+            let diemTong = 0;
+            if (typeof window.getScore === "function") diemTong = window.getScore();
+            else { alert("LỖI: Giao diện AI sinh ra thiếu hàm getScore(). Không thể tính điểm!"); return; }
+
+            isSubmitted = true;
+            if(timerInterval) clearInterval(timerInterval);
+
+            document.querySelectorAll('button').forEach(btn => {
+                if(btn.getAttribute('onclick')?.includes('handleSubmit')) {
+                    btn.innerHTML = '⏳ ĐANG CHẤM ĐIỂM...'; btn.style.opacity='0.7'; btn.style.cursor='wait'; btn.disabled=true;
+                }
+            });
+
+            setTimeout(() => {
+                const diemHienThi = Math.round(diemTong * 10) / 10;
+                try {
+                    EduTech.submitResult(
+                        { tenBai: testName, hoTen: hoTen, lop: lop, diemTong: diemTong },
+                        function() { alert("Nộp bài thành công! Điểm của bạn: " + diemHienThi + "/10"); showResultAndAnswers(diemHienThi, false); },
+                        function() {
+                            alert("Lỗi đường truyền! Điểm chưa được lưu.");
+                            isSubmitted = false;
+                            document.querySelectorAll('button').forEach(btn => {
+                                if(btn.disabled && btn.getAttribute('onclick')?.includes('handleSubmit')) {
+                                    btn.innerHTML='NỘP LẠI'; btn.style.opacity='1'; btn.style.cursor='pointer'; btn.disabled=false;
+                                }
+                            });
+                        }
+                    );
+                } catch(e) {
+                    alert("Không có mạng hoặc lỗi Core! Hiển thị điểm offline: " + diemHienThi + "/10");
+                    isSubmitted = true;
+                    showResultAndAnswers(diemHienThi, true);
+                    console.error(e);
+                }
+            }, 800);
+        }
+    </script>
+</body>
+</html>
